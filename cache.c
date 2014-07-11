@@ -62,6 +62,7 @@ int _mkp_init(struct plugin_api **api, char *confdir)
 void _mkp_exit()
 {
     PLUGIN_TRACE("Exiting");
+    cache_destroy();
 }
 
 /* Content handler: the real proxy stuff happens here */
@@ -93,11 +94,11 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     PLUGIN_TRACE ("sr->method %s", sr->method);
 
     /*if (sr->method == HTTP_METHOD_GET) {*/
-        file = cache_lookup_file (uri);
-        if (file == NULL) {
-            cache_add_file (full_path, uri);
+        //file = cache_lookup_file (uri);
+//        if (!file) {
+            file = cache_add_file (full_path, uri);
             PLUGIN_TRACE ("file = %s", file);
-        }
+  //      }
 /*    }*/
 
 /*    PLUGIN_TRACE("Looking up resource requested (which is, %s, %s, %s)", uri, vhost, full_path);
@@ -105,10 +106,11 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     cache_add_file (full_path, uri);*/
 
     if (!file) {
+        return MK_PLUGIN_RET_NOT_ME;
     }
 
 //    cache_lookup_file (sr->real_path.data);
-    printf("Caching plugin under construction\n");
+//    printf("Caching plugin under construction\n");
 
     memset (uri, '\0', sizeof(uri));
     memset (vhost, '\0', sizeof(vhost));
@@ -116,3 +118,9 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     return MK_PLUGIN_RET_NOT_ME;
 }
+
+/*void _mkp_event_error () {
+}
+
+void _mkp_event_timeout () {
+}*/
