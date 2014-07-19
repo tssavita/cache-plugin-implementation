@@ -17,29 +17,13 @@
  *  limitations under the License.
  */
 
-#ifndef _MIN_HEAP_H
-#define _MIN_HEAP_H
+#ifndef HASH_FUNC_H_
+#define HASH_FUNC_H_
 
-#define MAX_LENGTH_NAME 1024
+#include <stddef.h>
 
-struct node_count {
-    char name[MAX_LENGTH_NAME];
-    int count;
-};
-
-struct heap_t {
-    int heapsize;
-    struct node_count *heap_array;
-};
-
-struct heap_t *heap_create();
-
-int heap_insert (struct heap_t *heap, const char *name);
-
-void count_increment (struct heap_t *heap, const char *name);
-
-char *pop (struct heap_t *heap);
-
-void heap_destroy(struct heap_t *heap);
+int hash_func_asciisum_modulo(const char *name, size_t size);
+int hash_func_shift4(const char *name, size_t size);
+int hash_func_mult37(const char *name, size_t size);
 
 #endif

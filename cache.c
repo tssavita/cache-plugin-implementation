@@ -21,11 +21,14 @@
 
 #include "MKPlugin.h"
 #include "mk_http.h"
+#include "errno.h"
+
 #include "cache.h"
 #include "cache_conf.h"
 #include "cache_operation.h"
+#include "cache_request.h"
+#include "request.h"
 #include "constants.h"
-#include "errno.h"
 
 MONKEY_PLUGIN("cache",             /* shortname */
               "Monkey Caching plugin",             /* name */
@@ -61,8 +64,32 @@ int _mkp_init(struct plugin_api **api, char *confdir)
 /* Exit plugin */
 void _mkp_exit()
 {
+    request_finish ();
     PLUGIN_TRACE("Exiting");
-    cache_destroy();
+    cache_destroy ();
+}
+
+struct server_config *config;
+
+int _mkp_core_prctx (struct server_config *conf) {
+
+    PLUGIN_TRACE ("Starting process hooks for caching plugin");
+
+    cache_request_process_init ();
+    request_process_init ();
+    cache_init ();
+
+    config = conf;
+
+    return 0;
+}
+
+void _mkp_core_thctx () {
+
+    PLUGIN_TRACE ("Starting thread hooks for caching plugin");
+
+    cache_request_thread_init ();
+    request_thread_init ();
 }
 
 /* Content handler: the real proxy stuff happens here */
@@ -77,6 +104,11 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     char full_path[MAX_PATH_LEN];
 
     struct file_t *file;
+    struct request_t *req; /* = cache_request_get(cs->socket);
+    if (req) {
+        PLUGIN_TRACE ("req is present in list");
+        return MK_PLUGIN_RET_CONTINUE;
+    }*/
 
     int uri_len = sr->uri_processed.len > MAX_URI_LEN ?
         MAX_URI_LEN : sr->uri_processed.len;
@@ -105,22 +137,59 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     cache_add_file (full_path, uri);*/
 
-    if (!file) {
+    if (!file) 
         return MK_PLUGIN_RET_NOT_ME;
-    }
 
-//    cache_lookup_file (sr->real_path.data);
-//    printf("Caching plugin under construction\n");
+    req = request_new ();
+    req->socket = cs->socket;
+    req->bytes_offset = 0;
+    req->bytes_to_send = file->size;
+    req->file = file;
+    
+    cache_request_add (req);
+    request_fill (req);
+    
+    PLUGIN_TRACE ("Going to set status\n");
+
+    mk_api->header_set_http_status (sr, MK_HTTP_OK);
+    sr->headers.content_length = file->size;
+    sr->headers.real_length = file->size;
+
+    PLUGIN_TRACE ("file = %s", file);
+//    sr->headers.content_type = mime_map_get(full_path);
+
+ //   fill_cache_headers (file, cs, sr);
+ //   if (config->max_keep_alive_request - cs->counter_connections <= 0)
+
+    mk_api->header_send(cs->socket, cs, sr);
+    mk_api->socket_send(cs->socket, file->content.data, file->size);
+
+//    PLUGIN_TRACE ("File content = %s", file->content.data);
+
+    sr->headers.sent = MK_TRUE;
+
+    PLUGIN_TRACE ("file = %s", file);
 
     memset (uri, '\0', sizeof(uri));
+    //memset (path, '\0', sizeof(path));
     memset (vhost, '\0', sizeof(vhost));
     memset (full_path, '\0', sizeof(full_path));
 
-    return MK_PLUGIN_RET_NOT_ME;
+    return MK_PLUGIN_RET_END;
 }
 
-/*void _mkp_event_error () {
+int _mkp_event_error (int socket_fd) {
+    
+    PLUGIN_TRACE ("[FD %i] An error occured", socket_fd);
+    cache_request_delete (socket_fd);
+
+    return MK_PLUGIN_RET_EVENT_NEXT;
 }
 
-void _mkp_event_timeout () {
-}*/
+int _mkp_event_timeout (int socket_fd) {
+    
+    PLUGIN_TRACE ("[FD %i] Request timed out", socket_fd);
+    cache_request_delete (socket_fd);
+    
+    return MK_PLUGIN_RET_EVENT_NEXT;
+}
