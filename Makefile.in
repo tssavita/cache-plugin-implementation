@@ -6,7 +6,7 @@ CC_QUIET = @echo -n; $CC
 CFLAGS   = $CFLAGS
 LDFLAGS  = $LDFLAGS
 DEFS     = $DEFS
-PROXY_OBJECTS = cache.o cache_conf.o cache_operation.o hash_func.o hash_table.o min_heap.o
+PROXY_OBJECTS = cache.o cache_conf.o cache_operation.o hash_func.o hash_table.o min_heap.o 
 
 -include $(PROXY_OBJECTS:.o=.d)
 

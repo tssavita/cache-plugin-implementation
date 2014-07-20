@@ -3,10 +3,10 @@ all: monkey-cache.so
 
 CC       = @echo "  CC   $(_PATH)/$@"; gcc
 CC_QUIET = @echo -n; gcc
-CFLAGS   =   -std=gnu99 -Wall -Wextra -fvisibility=hidden -O2
+CFLAGS   = -g -std=gnu99 -Wall -Wextra -g -rdynamic -I./include
 LDFLAGS  = 
-DEFS     =  -DTRACE -DMALLOC_LIBC
-PROXY_OBJECTS = cache.o cache_conf.o cache_operation.o hash_func.o hash_table.o min_heap.o
+DEFS     = -DDEBUG -DSAFE_FREE -DMALLOC_LIBC
+PROXY_OBJECTS = cache.o cache_conf.o cache_operation.o hash_func.o hash_table.o min_heap.o 
 
 -include $(PROXY_OBJECTS:.o=.d)
 
