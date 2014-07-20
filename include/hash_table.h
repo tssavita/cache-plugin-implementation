@@ -17,13 +17,33 @@
  *  limitations under the License.
  */
 
-#ifndef HASH_FUNC_H_
-#define HASH_FUNC_H_
+#ifndef _HASH_TABLE_H_
+#define _HASH_TABLE_H_
 
-#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-int hash_func_asciisum_modulo(const char *name, size_t size);
-int hash_func_shift4(const char *name, size_t size);
-int hash_func_mult37(const char *name, size_t size);
+#define TABLE_SIZE 50
+
+struct node_t {
+    const char* key;
+    void *data;
+    struct node_t *next;
+};
+
+struct table_t {
+    struct node_t **table_list;
+    int table_size;
+};
+
+struct table_t *table_create ();
+
+int table_insert (struct table_t *table, const char *key, void *data);
+
+void *table_lookup (struct table_t *table, const char *key);
+
+void *table_delete (struct table_t *table, const char *key);
+
+void table_destroy ();
 
 #endif
