@@ -23,6 +23,7 @@
 #include "mk_http.h"
 #include "errno.h"
 #include "mk_mimetype.h"
+#include "mk_memory.h"
 
 #include "cache.h"
 #include "cache_conf.h"
@@ -157,11 +158,15 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     sr->headers.content_length = file->size;
     sr->headers.real_length = file->size;
 
-    PLUGIN_TRACE ("file = %s", file);
-    mime = mk_mimetype_find(full_path);
+
+    /* Using the mime type module of Monkey server to find 
+     out the content type of the requested file and fill up
+     the content_type field in the request header.*/
+    mk_ptr_t *file_name;
+    mk_ptr_t_set(file_name, full_path);
+    mime = mk_mimetype_find(file_name);
     if (!mime)
         mime = mimetype_default;
-
     sr->headers.content_type = mime->type;
 
  //   fill_cache_headers (file, cs, sr);
