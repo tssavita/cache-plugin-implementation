@@ -1,4 +1,5 @@
 #include "cache_stats.h"
+#include <sys/time.h>
 
 static int iter = 0;
 
@@ -25,6 +26,20 @@ void cache_stats_thread_init () {
     pthread_setspecific (stats_thread, (void *) thread);
 }
 
+/*void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
+
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    
+    int time_diff = get_time_diff_ms(stats->started_at, time);
+    
+    if (time_diff > 1000) {
+        stats->started_at = time;
+        stats->reqs_psec = stats->reqs_psec / (time_diff /1000);
+        stats->finished_reqs = 0;
+    }
+}*/
+
 void cache_stats_update () {
     
     int workers = mk_api->config->workers;
@@ -37,6 +52,6 @@ void cache_stats_update () {
 
 void cache_stats_new () {
 
-    struct cache_thread_stats *stat = pthread_getspecific (stats_thread);
-    stat->finished_reqs += 1;
+    struct cache_thread_stats *stats = pthread_getspecific (stats_thread);
+    stats->finished_reqs += 1;
 }
