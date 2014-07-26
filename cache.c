@@ -22,6 +22,7 @@
 #include "MKPlugin.h"
 #include "mk_http.h"
 #include "errno.h"
+#include "mk_mimetype.h"
 
 #include "cache.h"
 #include "cache_conf.h"
@@ -104,6 +105,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     char full_path[MAX_PATH_LEN];
 
     struct file_t *file;
+    struct mimetype *mime;
     struct request_t *req; /* = cache_request_get(cs->socket);
     if (req) {
         PLUGIN_TRACE ("req is present in list");
@@ -156,7 +158,11 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     sr->headers.real_length = file->size;
 
     PLUGIN_TRACE ("file = %s", file);
-//    sr->headers.content_type = mime_map_get(full_path);
+    mime = mk_mimetype_find(full_path);
+    if (!mime)
+        mime = mimetype_default;
+
+    sr->headers.content_type = mime->type;
 
  //   fill_cache_headers (file, cs, sr);
  //   if (config->max_keep_alive_request - cs->counter_connections <= 0)
