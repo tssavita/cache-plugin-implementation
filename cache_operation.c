@@ -35,12 +35,15 @@
 #include "utils.h"
 #include "MKPlugin.h"
 
-void cache_init () {
+void cache_process_init () {
 
     PLUGIN_TRACE ("before hash table creation");
     hash_table = table_create();
     PLUGIN_TRACE ("after hash table creation");
     heap = heap_create ();
+}
+
+void cache_thread_init () {
 }
 
 int isvalid (struct stat *file_status) {

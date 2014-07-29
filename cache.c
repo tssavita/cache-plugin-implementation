@@ -25,7 +25,7 @@
 #include "mk_mimetype.h"
 #include "mk_memory.h"
 
-#include "cache.h"
+//#include "cache.h"
 #include "cache_conf.h"
 #include "cache_operation.h"
 #include "cache_request.h"
@@ -77,10 +77,11 @@ int _mkp_core_prctx (struct server_config *conf) {
 
     PLUGIN_TRACE ("Starting process hooks for caching plugin");
 
-    cache_request_process_init ();
-    request_process_init ();
-    cache_init ();
-
+    /*cache_request_process_init ();
+    request_process_init ();*/
+    cache_process_init ();
+    cache_stats_process_init ();
+    
     config = conf;
 
     return 0;
@@ -90,8 +91,22 @@ void _mkp_core_thctx () {
 
     PLUGIN_TRACE ("Starting thread hooks for caching plugin");
 
-    cache_request_thread_init ();
-    request_thread_init ();
+/*    cache_request_thread_init ();
+    request_thread_init ();*/
+    cache_thread_init ();
+    cache_stats_thread_init ();
+}
+
+int statistics (struct client_session *cs, struct session_request *sr) {
+    mk_api->headers_set_http_status (sr, MK_HTTP_OK);
+
+    cJSON *root, *reqs;
+    
+    root = cJSON_CreateObject();
+    reqs = cJSON_CreateObject();
+    
+    cJSON_AddItemToObject(root, "reqs_psec", reqs);
+    reqs (reqs, "finished requests per sec", global_stats->reqs_psec);
 }
 
 /* Content handler: the real proxy stuff happens here */

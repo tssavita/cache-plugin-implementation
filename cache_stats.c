@@ -45,7 +45,7 @@ void cache_stats_thread_init () {
     pthread_setspecific (stats_thread, (void *) thread);
 }
 
-/*void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
+void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
 
     struct timeval time;
     gettimeofday(&time, NULL);
@@ -57,14 +57,16 @@ void cache_stats_thread_init () {
         stats->reqs_psec = stats->reqs_psec / (time_diff /1000);
         stats->finished_reqs = 0;
     }
-}*/
+}
 
 void cache_stats_update () {
     
     int workers = mk_api->config->workers;
     int reqs_psec = 0, i = 0;
-    for (i = 0; i < workers; i++) 
+    for (i = 0; i < workers; i++) {
+        cache_stats_update_finreqs(&thread_stats[i]);
         reqs_psec = reqs_psec + thread_stats[iter].reqs_psec;
+    }
     
     global_stats->reqs_psec = reqs_psec;
 }
