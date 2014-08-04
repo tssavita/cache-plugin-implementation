@@ -20,9 +20,9 @@
 #include <regex.h>
 
 #include "MKPlugin.h"
-#include "cache.h"
+#include "include/cache.h"
 #include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
-#include "cache_conf.h"
+#include "include/cache_conf.h"
 
 /* Lookup a backend (defined in proxy.conf) by it's host pointer ref */
 struct proxy_backend *proxy_conf_vhost_match(struct session_request *sr)

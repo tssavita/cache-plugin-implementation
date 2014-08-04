@@ -20,9 +20,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "hash_table.h"
-#include "hash_func.h"
-#include "utils.h"
+#include "include/hash_table.h"
+#include "include/hash_func.h"
+#include "include/utils.h"
 #include "MKPlugin.h"
 #include "mk_memory.h"
 #include "../../deps/jemalloc/include/jemalloc/jemalloc.h"

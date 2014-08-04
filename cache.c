@@ -26,11 +26,13 @@
 #include "mk_memory.h"
 
 //#include "cache.h"
-#include "cache_conf.h"
-#include "cache_operation.h"
-#include "cache_request.h"
-#include "request.h"
-#include "constants.h"
+#include "include/cache_conf.h"
+#include "include/cache_operation.h"
+#include "include/cache_request.h"
+#include "include/cache_stats.h"
+#include "include/request.h"
+#include "include/constants.h"
+#include "include/cJSON.h"
 
 MONKEY_PLUGIN("cache",             /* shortname */
               "Monkey Caching plugin",             /* name */
@@ -57,7 +59,7 @@ int _mkp_init(struct plugin_api **api, char *confdir)
     pthread_mutex_init(&mutex_proxy_backend, (pthread_mutexattr_t *) NULL);
     mk_list_init(&proxy_channels);
     PLUGIN_TRACE ("Initializing cache before cache_init ()\n");
-    cache_init();
+    cache_process_init();
     PLUGIN_TRACE ("Initializing cache\n");
 
     return 0;
@@ -98,7 +100,7 @@ void _mkp_core_thctx () {
 }
 
 int statistics (struct client_session *cs, struct session_request *sr) {
-    mk_api->headers_set_http_status (sr, MK_HTTP_OK);
+    mk_api->header_set_http_status (sr, MK_HTTP_OK);
 
     cJSON *root, *reqs;
     
@@ -106,7 +108,7 @@ int statistics (struct client_session *cs, struct session_request *sr) {
     reqs = cJSON_CreateObject();
     
     cJSON_AddItemToObject(root, "reqs_psec", reqs);
-    reqs (reqs, "finished requests per sec", global_stats->reqs_psec);
+    cJSON_AddNumberToObject(reqs, "finished requests per sec", global_stats->reqs_psec);
 }
 
 /* Content handler: the real proxy stuff happens here */

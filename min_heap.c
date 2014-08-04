@@ -21,10 +21,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "min_heap.h"
-#include "hash_table.h"
-#include "cache_operation.h"
-#include "utils.h"
+#include "include/min_heap.h"
+#include "include/hash_table.h"
+#include "include/cache_operation.h"
+#include "include/utils.h"
 #include "MKPlugin.h"
 #include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 
