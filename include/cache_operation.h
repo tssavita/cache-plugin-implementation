@@ -41,7 +41,9 @@ struct file_t {
     int still_needed;*/
 };
 
-void cache_init();
+void cache_process_init();
+
+void cache_thread_init ();
 
 int isvalid (struct stat *file_status);
 
