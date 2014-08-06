@@ -99,22 +99,40 @@ void _mkp_core_thctx () {
     cache_stats_thread_init ();
 }
 
-int statistics (struct client_session *cs, struct session_request *sr) {
+int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     mk_api->header_set_http_status (sr, MK_HTTP_OK);
 
     cJSON *root, *reqs;
+    char *msg_to_send;
+    char mime_type[6] = ".json";
+
+    struct mimetype *mime;
+    mk_ptr_t *cont_type;
+    mk_ptr_t_set(cont_type, mime_type);
     
     root = cJSON_CreateObject();
     reqs = cJSON_CreateObject();
     
-    cJSON_AddItemToObject(root, "reqs_psec", reqs);
-    cJSON_AddNumberToObject(reqs, "finished requests per sec", global_stats->reqs_psec);
+    cJSON_AddItemToObject(root, "requests", reqs);
+    cJSON_AddNumberToObject(reqs, "finished_per_sec", global_stats->reqs_psec);
+
+    msg_to_send = cJSON_Print(root);
+    sr->headers.content_length = strlen(msg_to_send);
+    sr->headers.real_length = strlen(msg_to_send);
+    mime = mk_mimetype_find(cont_type);
+    sr->headers.content_type = mime->type;
+    mk_api->header_send(cs->socket, cs, sr);
+    mk_api->socket_send(cs->socket, msg_to_send, strlen(msg_to_send));
+
+    cJSON_Delete(root);
+    free(msg_to_send);
+    return MK_PLUGIN_RET_END;
 }
 
 /* Content handler: the real proxy stuff happens here */
 int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
-                  struct session_request *sr)
-{
+                  struct session_request *sr) {
+
     (void) plugin;
     (void) cs;
     char uri[MAX_URI_LEN];
@@ -124,7 +142,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     struct file_t *file;
     struct mimetype *mime;
-    struct request_t *req; /* = cache_request_get(cs->socket);
+    /*struct request_t *req; = cache_request_get(cs->socket);
     if (req) {
         PLUGIN_TRACE ("req is present in list");
         return MK_PLUGIN_RET_CONTINUE;
@@ -157,17 +175,21 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     cache_add_file (full_path, uri);*/
 
-    if (!file) 
+    if (!file)
         return MK_PLUGIN_RET_NOT_ME;
 
-    req = request_new ();
+    if (memcmp(uri, "/cacheui", 8) == 0) {
+        return cJSON_stats(cs, sr);
+    }
+
+    /*q = request_new ();
     req->socket = cs->socket;
     req->bytes_offset = 0;
     req->bytes_to_send = file->size;
     req->file = file;
     
     cache_request_add (req);
-    request_fill (req);
+    request_fill (req);*/
     
     PLUGIN_TRACE ("Going to set status\n");
 
@@ -179,12 +201,12 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     /* Using the mime type module of Monkey server to find 
      out the content type of the requested file and fill up
      the content_type field in the request header.*/
-    mk_ptr_t *file_name;
+    /*mk_ptr_t *file_name;
     mk_ptr_t_set(file_name, full_path);
     mime = mk_mimetype_find(file_name);
     if (!mime)
         mime = mimetype_default;
-    sr->headers.content_type = mime->type;
+    sr->headers.content_type = mime->type;*/
 
  //   fill_cache_headers (file, cs, sr);
  //   if (config->max_keep_alive_request - cs->counter_connections <= 0)
@@ -208,16 +230,16 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
 int _mkp_event_error (int socket_fd) {
     
-    PLUGIN_TRACE ("[FD %i] An error occured", socket_fd);
-    cache_request_delete (socket_fd);
+    PLUGIN_TRACE("[FD %i] An error occured", socket_fd);
+    /*cache_request_delete (socket_fd);*/
 
     return MK_PLUGIN_RET_EVENT_NEXT;
 }
 
 int _mkp_event_timeout (int socket_fd) {
     
-    PLUGIN_TRACE ("[FD %i] Request timed out", socket_fd);
-    cache_request_delete (socket_fd);
+    PLUGIN_TRACE("[FD %i] Request timed out", socket_fd);
+    /*cache_request_delete (socket_fd);*/
     
     return MK_PLUGIN_RET_EVENT_NEXT;
 }
