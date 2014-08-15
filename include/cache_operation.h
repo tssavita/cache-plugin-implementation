@@ -30,6 +30,8 @@
 struct table_t *hash_table;
 struct heap_t *heap;
 
+/* Structure for the file to be inserted 
+   in the min heap. */
 struct file_t {
 
     char name[MAX_LENGTH_NAME];
@@ -37,8 +39,6 @@ struct file_t {
     mk_ptr_t content;
     size_t size;
     int count;
-/*    int suspended;
-    int still_needed;*/
 };
 
 void cache_process_init();
