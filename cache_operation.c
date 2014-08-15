@@ -46,6 +46,7 @@ void cache_process_init () {
 void cache_thread_init () {
 }
 
+/* To check if the file is valid (whether it exists or not). */
 int isvalid (struct stat *file_status) {
 
     mode_t mode = file_status->st_mode;
@@ -58,6 +59,7 @@ int isvalid (struct stat *file_status) {
     return true;
 }
 
+/* To add a new file to the cache. */
 struct file_t *cache_add_file (const char *path, const char *uri) {
 
     struct file_t *file;
@@ -65,23 +67,23 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
     mode_t mode = S_IRUSR | S_IWUSR;
     PLUGIN_TRACE ("Entered add_file1 ()");
     
+    /* Checking to see if the file is already present. */
     file = table_lookup (hash_table, uri);
 
+    /* If the file was not present already in cache 
+    condition becomes successful. */
     if (file == NULL) {
         if (stat(path, &file_status) == -1)
             return NULL;
-        PLUGIN_TRACE ("Entered add_file2 ()");
     
         if (!isvalid(&file_status))
             return NULL;
-        PLUGIN_TRACE ("Looking up uri %s", uri);
     
-        PLUGIN_TRACE ("Entered if loop in add_file (), path = %s", path);
-
         int fd = open (path, O_RDONLY, mode);
         if (fd == -1)
             handle_error("open");
 
+        /* Mapping file to memory using mmap() sys call. */
         int map_length = file_status.st_size;
         void *map_content = mmap (NULL, map_length, PROT_READ, MAP_SHARED,fd, 0);
         
@@ -97,8 +99,6 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         file->content.data = map_content;
         file->content.len = map_length;
         file->count = 1;
-/*        file->suspended = 0;
-        file->still_needed = 0;*/
 
         int htable_insert = table_insert (hash_table, uri, file);
         int mheap_insert = heap_insert (heap, uri);
@@ -109,17 +109,19 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         }
     }
 
-    // PLUGIN_TRACE ("%s", file->content);
-
     return file;
 }
 
+/* Incrementing the access count of the file each 
+   time it is accessed. */
 void file_access_count (struct file_t *file) {
 
     file->count += 1;
     count_increment(heap, file->name);
 }
 
+/* Looking up the file in the cache, with the help
+   of the 'uri'*/
 struct file_t *cache_lookup_file (const char *uri) {
 
     struct file_t *file = table_lookup (hash_table, uri);
@@ -131,6 +133,7 @@ struct file_t *cache_lookup_file (const char *uri) {
     return file;
 }
 
+/* Unmapping the file from the memory. */
 void cache_unmap_file (struct file_t *file) {
 
     if (!file)
@@ -142,6 +145,7 @@ void cache_unmap_file (struct file_t *file) {
     mk_api->mem_free(file);
 }
 
+/* Deleting the cache completely. */
 void cache_destroy () {
 
     table_destroy (hash_table);

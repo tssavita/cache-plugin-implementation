@@ -25,12 +25,14 @@
 
 #define TABLE_SIZE 50
 
+/* Structure for the key to be inserted in the hash table. */
 struct node_t {
     const char* key;
     void *data;
     struct node_t *next;
 };
 
+/* Structure for the hash table. */
 struct table_t {
     struct node_t **table_list;
     int table_size;
