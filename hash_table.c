@@ -27,6 +27,7 @@
 #include "mk_memory.h"
 #include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 
+/* Create hash table structure. */
 struct table_t *table_create () {
 
     PLUGIN_TRACE ("Created hashtable");
@@ -42,6 +43,7 @@ struct table_t *table_create () {
     return table;
 }
 
+/* Insert key into the table.  */
 int table_insert (struct table_t *table, const char *key, void *data) {
 
     int index = hash_func_asciisum_modulo(key, table->table_size);
@@ -59,6 +61,7 @@ int table_insert (struct table_t *table, const char *key, void *data) {
     return true;
 }
 
+/* Looking up a value in the hash table. */
 void *table_lookup (struct table_t *table, const char *key) {
 
     PLUGIN_TRACE ("Lookup inside the hash table.\n");
@@ -84,6 +87,7 @@ void *table_lookup (struct table_t *table, const char *key) {
     return NULL;
 }
 
+/* Deleting an element from the table. */
 void *table_delete (struct table_t *table, const char *key) {
     
     int index = hash_func_asciisum_modulo(key, table->table_size);
@@ -112,6 +116,8 @@ void *table_delete (struct table_t *table, const char *key) {
     return data;
 }
 
+/* Deleting the table including the structure 
+   and freeing the space. */
 void table_destroy (struct table_t *table) {
     struct node_t *temp1;
     int i;
