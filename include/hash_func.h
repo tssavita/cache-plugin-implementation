@@ -22,6 +22,9 @@
 
 #include <stddef.h>
 
+/* Hash functions that could be used to find out the position 
+   at which a key is to be inserted in the chash table. */
+
 int hash_func_asciisum_modulo(const char *name, size_t size);
 int hash_func_shift4(const char *name, size_t size);
 int hash_func_mult37(const char *name, size_t size);

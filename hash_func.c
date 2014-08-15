@@ -22,23 +22,22 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-/* Function to calculate the index in which the entry is entered by calculating
-   the hash value.Hash function - Adding up ascii values of all characters in the 
-   file name and dividing by the maximum number of lists possible in the hash table. */
-
+/* Function to calculate the index in which the 
+   entry is entered by calculating the hash value.
+   Hash function - Adding up ascii values of all 
+   characters in the file name and dividing by the 
+   maximum number of lists possible in the hash table. */
 int hash_func_asciisum_modulo (const char *name, size_t size) {
     unsigned int sum_ascii = 0;
     
-    for (; *name; name++) {
+    for (; *name; name++) 
         sum_ascii = sum_ascii + *name;
-/*        while (sum_ascii > ((int) size))
-            sum_ascii = sum_ascii % size;
-        printf ("ascii sum = %d", sum_ascii);*/
-    }
 
     return (sum_ascii % size);
 }
 
+/* Shifting by 4 and adding and modulo to find an 
+   ascii value. */
 int hash_func_shift4 (const char *name, size_t size) {
     int sum_shift4 = 0;
 
@@ -48,6 +47,8 @@ int hash_func_shift4 (const char *name, size_t size) {
     return (sum_shift4 % size);
 }
 
+/* Supposed to be a fast hash function. Found the code 
+   on 'stackoverflow.com'. */
 int hash_func_mult37 (const char *name, size_t size) {
     unsigned int hash = 0;
     unsigned char *p;
