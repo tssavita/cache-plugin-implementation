@@ -119,7 +119,7 @@
 		var x = 10;
 		document.getElementById("demo").innerHTML = inval2;
 
-		GetData(x);
+		GetData(inval2);
 
 		dataset = [
 		    { label: "CPU", data: data, color: "#0066FF" }
@@ -128,7 +128,7 @@
 		$.plot($("#flot-placeholder1"), dataset, options);
 
 		function update() {
-		    GetData(x);
+		    GetData(inval2);
 
 		    $.plot($("#flot-placeholder1"), dataset, options)
 		    setTimeout(update, updateInterval);

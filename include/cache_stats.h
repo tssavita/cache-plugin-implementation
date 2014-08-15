@@ -23,6 +23,7 @@
 #include <pthread.h>
 #include "MKPlugin.h"
 #include <sys/time.h>
+#include <time.h>
 
 struct cache_global_stats {
     int reqs_psec;
@@ -31,13 +32,13 @@ struct cache_global_stats {
 struct cache_thread_stats {
     int index;
     int reqs_psec;
-    struct timeval started_at;
+    time_t started_at;
     int finished_reqs;
 };
 
 pthread_key_t stats_thread;
 struct cache_thread_stats *thread_stats;
-struct cache_global_stats *global_stats;
+struct cache_global_stats global_stats;
 
 void cache_stats_process_init ();
 
