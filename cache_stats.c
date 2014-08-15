@@ -18,7 +18,7 @@
  */
 
 #include "include/cache_stats.h"
-#include <sys/time.h>
+#include <time.h>
 
 static int iter = 0;
 
@@ -47,13 +47,13 @@ void cache_stats_thread_init () {
 
 void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
 
-    struct timeval time;
-    gettimeofday(&time, NULL);
+    time_t now;
+    time(&now);
     
-    int time_diff = get_time_diff_ms(stats->started_at, time);
+    int time_diff = difftime(stats->started_at, now);
     
     if (time_diff > 1000) {
-        stats->started_at = time;
+        stats->started_at = now;
         stats->reqs_psec = stats->reqs_psec / (time_diff /1000);
         stats->finished_reqs = 0;
     }
@@ -68,7 +68,7 @@ void cache_stats_update () {
         reqs_psec = reqs_psec + thread_stats[iter].reqs_psec;
     }
     
-    global_stats->reqs_psec = reqs_psec;
+    global_stats.reqs_psec = reqs_psec;
 }
 
 void cache_stats_new () {

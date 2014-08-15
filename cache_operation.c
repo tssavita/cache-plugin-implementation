@@ -76,7 +76,7 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
             return NULL;
         PLUGIN_TRACE ("Looking up uri %s", uri);
     
-        PLUGIN_TRACE ("Entered if loop in add_file ()");
+        PLUGIN_TRACE ("Entered if loop in add_file (), path = %s", path);
 
         int fd = open (path, O_RDONLY, mode);
         if (fd == -1)

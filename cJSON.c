@@ -31,7 +31,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include "mk_memory.h"
-#include "cJSON.h"
+#include "include/cJSON.h"
 
 static const char *ep;
 

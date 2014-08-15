@@ -1,47 +1,35 @@
-<!DOCTYPE html>
-<html lang="en" ng-app="ui_2">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="">
-  <meta name="author" content="">
-  
-  <title>Monkey Caching UI</title>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html ng-app="ui_2"> <!-- xmlns="http://www.w3.org/1999/xhtml">   -->
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="Content-Style-Type" content="text/css">
+    <style type="text/css">
+        #flot-placeholder{width:350px;height:300px;}       
+    </style>
 
-  <link rel="stylesheet/less" href="less/bootstrap.less" type="text/css" />
-  <link rel="stylesheet/less" href="less/responsive.less" type="text/css" />
+    <title>Monkey Caching UI</title>
+
+    <link rel="stylesheet" href="libs/bootstrap/bootstrap.css" media="screen">
+    <link rel="stylesheet/less" href="less/bootstrap.less" type="text/css" />
+    <link rel="stylesheet/less" href="less/responsive.less" type="text/css" />
     <script src="js/less-1.3.3.min.js"></script>
-	<!--append ‘#!watch’ to the browser URL, then refresh the page. -->
 	
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
 
   <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <script src="js/html5shiv.js"></script>
-
-    <!--<script type="text/javascript" src="js/jquery.min.js"></script>
-
-	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/scripts.js"></script>-->
-    <script src="deps/flot1/jquery.js"></script>
-    <script src="deps/flot1/jquery.flot.min.js"></script>
-    <script src="deps/flot1/jquery.min.js"></script>
-    <script src="deps/flot1/jquery.flot.time.js"></script>
-    <script src="deps/flot1/jshashtable-2.1.js"></script>
-    <script src="deps/flot1/jquery.numberformatter-1.2.3.min.js"></script>
-    <script src="deps/flot1/jquery.flot.symbol.js"></script>
-    <script src="deps/flot1/jquery.flot.axislabels.js"></script>
-    <script src="deps/underscore/underscore.js"></script>
-<!--    <script src="deps/flot1/jquery.flot.js"</script>
-    <script src="deps/flot1/curvedLines.js"></script>-->
-    <script src="deps/angular/angular.min.js"></script>
-    <script src="deps/angularui/bootstrap.js"></script>
-    <script src="js/ctrls/main.js"></script>
-    <script src="js/services/deps.js"></script>
-    <script src="js/directives/graph.js"></script>
-    <script src="js/init.js"></script>
-
-    <!--<style>
+    
+    
+    <script type="text/javascript" src="deps/flot1/jquery.min.js"></script>
+	<script type="text/javascript" src="deps/flot1/jquery.flot.min.js"></script>
+	<script type="text/javascript" src="deps/flot1/jquery.flot.time.js"></script>    
+	<script type="text/javascript" src="deps/flot1/jshashtable-2.1.js"></script>    
+	<script type="text/javascript" src="deps/flot1/jquery.numberformatter-1.2.3.min.js"></script>
+	<script type="text/javascript" src="deps/flot1/jquery.flot.symbol.js"></script>
+	<script type="text/javascript" src="deps/flot1/jquery.flot.axislabels.js"></script>
+	
+	<style>
         .modal {
             position: absolute;
         }
@@ -49,160 +37,111 @@
             body {
                 padding-top: 60px;
             }
-        </style>-->
+    </style>
 
     <script>
-//		return function (scope, elem, attrs) {
-//			var canDraw = false;
-			var data = [];
-			var inval = 0;
-			var dataset;
-			var updateInterval = 1000;
-			var start = new Date;
-			var graphSize = 20;
-										
-			var graph = {
-				series: {
-					lines: {
-						show: true,
-						lineWidth: 1.2,
-						fill: true
-					}
-				},
-				xaxis: {
-					mode: "time",
-					tickSize: [5, "second"]
-					tickFormatter: function (v, axis) {
-						var date = new Date(v);					
-						if (date.getSeconds() % 20 == 0) {
-							var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-							var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-							var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-							
-							return hours + ":" + minutes + ":" + seconds;
-						}
-						else 
-							return "";
-					},
-					axisLabel: "Time",
-					axisLabelUseCanvas: true,
-				    axisLabelFontSizePixels: 12,
-				    axisLabelFontFamily: 'Verdana, Arial',
-				    axisLabelPadding: 10
-				},
-				yaxis: {
-					min: 0,
-					tickSize: 5,
-					tickFormatter: function (v, axis) {
-						if (v % 10 == 0)
-							return v + "%";
-						else 
-							return "";
-					},
-					axisLabel: "Number of requests",
-					axisLabelUseCanvas: true,
-					axisLabelFontSizePixels: 12,
-					axisLabelFontFamily: 'Verdana, Arial',
-					axisLabelPadding: 6
-				},
-				legend: {
-					labelBoxBorderColor: "#fff"
-				},
-				grid: {                
-					backgroundColor: "#000000",
-					tickColor: "#008040"
-				}
-			};	
-													
-/*			var draw = function () {
-				if (elem.width() == 0 || elem.height() == 0)
-					return;
-				
-				graph.setData([dataset]);
-				graph.setupGrid();
-				graph.draw();
-			};*/
-				
-//		};
+	var data = [];
+	var dataset;
+	var inval = 0;
+	var totalPoints = 100;
+	var updateInterval = 1000;
+	var starttime = new Date().getTime();
 
-		function func() {
-			var x = 5;
-			document.getElementById("demo").innerHTML = x;
+	function GetData(inval2) {
+		data.shift(); //to remove first item of array
+	 
+		while (data.length < totalPoints) {    
+		    var y = inval2;
+		    var temp = [starttime += updateInterval, y]; //data format [x, y]
+	 
+		    data.push(temp);
 		}
-		
-		$(document).ready(function () {
+	}
 
-			
-			inval = document.getElementById("placeholder").val;
-			
-			function getData(inval) {
-			
-		  	    var cnt = ((new Date - start)/1000).toFixed(0);
-			    var temp = [cnt, inval];
+	var options = {
+		series: {
+		    lines: {
+		        show: true,
+		        lineWidth: 1.2,
+		        fill: true
+		    }
+		},
+		xaxis: {
+		    mode: "time",
+		    tickSize: [10, "second"],
+		    tickFormatter: function (v, axis) {
+		        var date = new Date(v);
 
-				data.push(temp);
-                if (data.length > graphSize) 
-			    	data.shift();
-			};
-				
-			getData(inval);
-			
-			dataset = [ 
-				{ label: "Requests", data: data, color: "#00ff00" }
-			];
-		
-			$.plot($("#placeholder"), dataset, graph);
-			
-			function update() {
-				getData(inval);
-				$.plot($("#placeholder"), dataset, graph);
-				setTimeout(update, updateInterval);
-			}		
-			
-			update();
-		});
-		
-		
+		        if (date.getSeconds() % 20 == 0) {
+		            var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+		            var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+		            var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
 
-/*			scope.$watch(attrs.draw, function(val) {
-				canDraw = val;
-			});
-		
-			scope.$watch(attrs.label, function(val) {
-				if (val === undefined)
-					return;
-				
-				conf.label = val;
-			});
-		
-			var interval = setInterval(update, 1000);
-		
-			angular.element(window).bind('resize', draw);
-			elem.bin('$destroy', function() {
-				clearInterval(interval);
-			});
-		
-		};
-	}]);*/
-    </script>
+		            return hours + ":" + minutes + ":" + seconds;
+		        } else {
+		            return "";
+		        }
+		    },
+		    axisLabel: "Time",
+		    axisLabelUseCanvas: true,
+		    axisLabelFontSizePixels: 12,
+		    axisLabelFontFamily: 'Verdana, Arial',
+		    axisLabelPadding: 10
+		},
+		yaxis: {
+		    min: 0,
+		    max: 100,        
+		    tickSize: 10,
+		    tickFormatter: function (v, axis) {
+		        if (v % 10 == 0) {
+		            return v + "%";
+		        } else {
+		            return "";
+		        }
+		    },
+		    axisLabel: "Number of requests",
+		    axisLabelUseCanvas: true,
+		    axisLabelFontSizePixels: 12,
+		    axisLabelFontFamily: 'Verdana, Arial',
+		    axisLabelPadding: 6
+		},
+		legend: {        
+		    labelBoxBorderColor: "#fff"
+		},
+		grid: {                
+		    backgroundColor: "#ffffff",
+		    tickColor: "#9966CC"
+		}
+	};
 
+	$(document).ready(function() {
+		var inval1 = document.getElementById("flot-placeholder1");
+		var inval2 = inval1.getAttribute("value");
+		var x = 10;
+		document.getElementById("demo").innerHTML = inval2;
+
+		GetData(inval2);
+
+		dataset = [
+		    { label: "CPU", data: data, color: "#0066FF" }
+		];
+
+		$.plot($("#flot-placeholder1"), dataset, options);
+
+		function update() {
+		    GetData(inval2);
+
+		    $.plot($("#flot-placeholder1"), dataset, options)
+		    setTimeout(update, updateInterval);
+		}
+
+		update();
+	});
+
+	</script>
 </head>
-
 <body>
-    <div class="container">
-    	<div class="row clearfix">
-	    	<div class="col-md-12 column">
-		    	<div class="page-header">
-                    <h1> Requests per second handled by cache plugin </h1>
-                    <div id="placeholder" val="requests.finished_per_sec" style="width:600px;height:300px" label="'Reqs_psec'"></div>
-       			</div>
-       			<button onclick="func()">Try it</button>
-       			<p id="demo"></p>
-	    		<div class="page-header">
-		    		<h1> Cache hits and misses </h1>
-			    </div>
-    		</div>
-	    </div>
-    </div>
+    <div id="flot-placeholder1" value="requests.finished_per_sec" style="width:750px;height:750px;margin:0 auto"></div>
+   	<p id="demo"></p>
 </body>
 </html>
