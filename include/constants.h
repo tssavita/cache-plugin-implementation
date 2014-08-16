@@ -11,4 +11,10 @@
 #define UI_URL "/cache"
 #define UI_URL_LEN 6
 
+#define UI_DIR "/conf/ui_2/index.html"
+#define UI_DIR_LEN 21
+
+#define MIME_CONF "/conf/mime.conf"
+#define MIME_CONF 5 
+
 #endif 

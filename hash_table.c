@@ -30,15 +30,15 @@
 /* Create hash table structure. */
 struct table_t *table_create () {
 
-    PLUGIN_TRACE ("Created hashtable");
     struct table_t *table = malloc(sizeof(struct table_t));
 
     if (!table)
         return NULL;
 
     table->table_size = TABLE_SIZE;
-    PLUGIN_TRACE ("Created min heap");
-    table->table_list = malloc(TABLE_SIZE * (sizeof(struct table_t)));
+    int space = TABLE_SIZE * (sizeof(struct node_t));
+    table->table_list = malloc(space);
+    memset(table->table_list, 0, space);
     
     return table;
 }
@@ -64,19 +64,18 @@ int table_insert (struct table_t *table, const char *key, void *data) {
 /* Looking up a value in the hash table. */
 void *table_lookup (struct table_t *table, const char *key) {
 
-    PLUGIN_TRACE ("Lookup inside the hash table.\n");
-
     int index = hash_func_asciisum_modulo(key, table->table_size);
-    struct node_t *temp = table->table_list[index];
+    struct node_t *temp = malloc(sizeof(struct node_t));
+    temp = table->table_list[index];
 
-    if (temp == NULL) {
+    if (!temp) 
         return NULL;
-    }
+
+    PLUGIN_TRACE ("Lookup inside the hash table.\n");
 
     PLUGIN_TRACE ("Finding out hash of the file name requested = %d\n", index);
 
-    for (; temp != NULL; temp = temp->next) {
-        PLUGIN_TRACE ("index = %s", temp->key);
+    for (temp = table->table_list[index]; temp; temp = temp->next) {
         if (temp->key == key || (strcmp(temp->key, key) ==0)) {
             PLUGIN_TRACE ("Found file\n");
             return temp->data;
@@ -129,8 +128,10 @@ void table_destroy (struct table_t *table) {
             free(temp1);
         }   
     }
+    PLUGIN_TRACE("Destroy");
     free (table->table_list);
     free (table);
+    PLUGIN_TRACE("Destroy");
 }
 
 /* void *table_print (struct table_t *table) {

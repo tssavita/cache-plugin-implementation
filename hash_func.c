@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-#include "hash_func.h"
+#include "include/hash_func.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>

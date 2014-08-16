@@ -82,7 +82,7 @@ void _mkp_exit()
 {
     //request_finish ();
     PLUGIN_TRACE("Exiting");
-    cache_destroy ();
+//    cache_destroy ();
 }
 
 struct server_config *config;
