@@ -19,7 +19,7 @@
 
 #include <regex.h>
 
-#include "MKPlugin.h"
+#include <monkey/mk_plugin.h>
 #include "include/cache.h"
 #include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 #include "include/cache_conf.h"

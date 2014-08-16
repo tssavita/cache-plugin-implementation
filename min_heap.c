@@ -25,7 +25,7 @@
 #include "include/hash_table.h"
 #include "include/cache_operation.h"
 #include "include/utils.h"
-#include "MKPlugin.h"
+#include <monkey/mk_plugin.h>
 #include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 
 /* Function to create the structure (array) for min heap. */

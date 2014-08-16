@@ -23,8 +23,8 @@
 #include "include/hash_table.h"
 #include "include/hash_func.h"
 #include "include/utils.h"
-#include "MKPlugin.h"
-#include "mk_memory.h"
+#include <monkey/mk_plugin.h>
+#include <monkey/mk_memory.h>
 #include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 
 /* Create hash table structure. */

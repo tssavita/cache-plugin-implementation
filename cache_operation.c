@@ -33,7 +33,7 @@
 #include "include/hash_table.h"
 #include "include/min_heap.h"
 #include "include/utils.h"
-#include "MKPlugin.h"
+#include <monkey/MKPlugin.h>
 
 void cache_process_init () {
 

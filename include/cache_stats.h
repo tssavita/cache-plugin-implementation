@@ -21,7 +21,7 @@
 #define _CACHE_STATS_H
 
 #include <pthread.h>
-#include "MKPlugin.h"
+#include <monkey/mk_plugin.h>
 #include <sys/time.h>
 #include <time.h>
 
