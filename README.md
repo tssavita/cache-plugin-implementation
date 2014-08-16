@@ -9,7 +9,7 @@ Installation
 $ git clone https://github.com/monkey/monkey.git  
 $ cd monkey  
 $ git clone https://github.com/tssavita/cache-plugin-implementation.git plugins/cache/  
-$ ./configure --malloc-libc --debug --enable-plugins=cache 
+$ ./configure --malloc-libc --debug --enable-plugins=cache  
 $ make  
 $ bin/monkey
 
