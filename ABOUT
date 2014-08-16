@@ -1,0 +1,5 @@
+Cache Plugin
+============
+
+Caching plugin stores frequently accessed files 
+for fast access by mapping them onto the memory.
