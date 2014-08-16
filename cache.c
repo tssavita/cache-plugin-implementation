@@ -21,28 +21,24 @@
 #include <string.h>
 #include <math.h>
 
-#include "mk_info.h"
-#include "MKPlugin.h"
-#include "mk_http.h"
-#include "errno.h"
-#include "mk_mimetype.h"
-#include "mk_memory.h"
-#include "mk_config.h"
-#include "mk_file.h"
-#include "monkey.h"
-#include "mk_string.h"
-#include "mk_utils.h"
-#include "mk_request.h"
+#include <monkey/mk_info.h>
+#include <monkey/mk_plugin.h>
+#include <monkey/mk_http.h>
+#include <monkey/mk_mimetype.h>
+#include <monkey/mk_memory.h>
+#include <monkey/mk_config.h>
+#include <monkey/mk_file.h>
+#include <monkey/monkey.h>
+#include <monkey/mk_string.h>
+#include <monkey/mk_utils.h>
+#include <monkey/mk_request.h>
 
 //#include "cache.h"
 #include "include/cJSON.h"
 #include "include/cache_conf.h"
 #include "include/cache_operation.h"
-//#include "include/cache_request.h"
 #include "include/cache_stats.h"
-//#include "include/request.h"
 #include "include/constants.h"
-//#include "include/file_type.h"
 
 MONKEY_PLUGIN("cache",             /* shortname */
               "Monkey Caching plugin",             /* name */
