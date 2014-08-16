@@ -134,9 +134,6 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     struct mimetype *mime = mk_api->mem_alloc_z(sizeof(struct mimetype));
     mime = mk_mimetype_find(type_ptr);
 
-    if (!mime)
-        PLUGIN_TRACE("mime is null");
-
     sr->headers.content_type = mime->type;
     mk_api->header_send(cs->socket, cs, sr);
     mk_api->socket_send(cs->socket, msg_to_send, strlen(msg_to_send));
@@ -170,7 +167,6 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     strncpy (path, sr->real_path.data, path_len);
     uri[uri_len] = '\0';
     path[path_len] = '\0';
-    PLUGIN_TRACE("path = %s", path);
 
     if (uri_len > 6 && memcmp(uri, UI_URL, UI_URL_LEN) == 0) {
 
@@ -186,21 +182,22 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
         if (url.len == 11 && memcmp(url.data, "/index.html", 11) == 0) {
             memset (path, '\0', sizeof(path));
 
-            PLUGIN_TRACE("path in stats - %s, %d", PLUGDIR, strlen(PLUGDIR));
             int pluglen = strlen(PLUGDIR);
             memcpy(path, PLUGDIR, pluglen);
+
             int level_1 = strlen(path);
             PLUGIN_TRACE("path in stats - %s", path);
             int pluglen2 = pluglen + strlen(UI_URL);
             memcpy(path + level_1, UI_URL, pluglen2);
+
             int level_2 = strlen(path);
             PLUGIN_TRACE("path in stats - %s", path);
             int pluglen3 = pluglen2 + strlen(UI_DIR);
             memcpy(path + level_2, UI_DIR, pluglen3);
+
             PLUGIN_TRACE("path in stats - %s", path);
 
             path_len = strlen(path);
-            
             path[path_len] = '\0';
 
             PLUGIN_TRACE("path in stats - %s", path);
