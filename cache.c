@@ -53,7 +53,7 @@ int conf_path_len;
 int _mkp_init(struct plugin_api **api, char *confdir)
 {
     int ret;
-    strncpy(conf_path, confdir, MAX_PATH_LEN);
+    memcpy(conf_path, confdir, MAX_PATH_LEN);
     conf_path_len = strlen(conf_path);
 
     (void) confdir;
@@ -118,8 +118,8 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     char *msg_to_send;
     char *mime_string = "type.json";
 
-    mk_ptr_t *type_ptr;
-    type_ptr = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
+    mk_ptr_t *type_ptr = malloc(sizeof(mk_ptr_t));
+    memset(type_ptr, 0, sizeof(mk_ptr_t));
     mk_ptr_set(type_ptr, mime_string);
 
     root = cJSON_CreateObject();
@@ -131,7 +131,8 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     msg_to_send = cJSON_Print(root);
     sr->headers.content_length = strlen(msg_to_send);
     sr->headers.real_length = strlen(msg_to_send);
-    struct mimetype *mime = mk_api->mem_alloc_z(sizeof(struct mimetype));
+    struct mimetype *mime = malloc(sizeof(struct mimetype));
+    memset(mime, 0, sizeof(struct mimetype));
     mime = mk_mimetype_find(type_ptr);
 
     sr->headers.content_type = mime->type;
@@ -163,8 +164,8 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     int path_len = sr->real_path.len > MAX_PATH_LEN ?
         MAX_PATH_LEN : sr->real_path.len;
 
-    strncpy (uri, sr->uri_processed.data, uri_len);
-    strncpy (path, sr->real_path.data, path_len);
+    memcpy(uri, sr->uri_processed.data, uri_len);
+    memcpy (path, sr->real_path.data, path_len);
     uri[uri_len] = '\0';
     path[path_len] = '\0';
 
@@ -224,7 +225,8 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
      out the content type of the requested file and fill up
      the content_type field in the request header.*/
 
-    mk_ptr_t *file_name = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
+    mk_ptr_t *file_name = malloc(sizeof(mk_ptr_t));
+    memset(file_name, 0, sizeof(mk_ptr_t));
     mk_ptr_set(file_name, path);
 
     struct mimetype *mime = mk_api->mem_alloc_z(sizeof(mk_ptr_t));

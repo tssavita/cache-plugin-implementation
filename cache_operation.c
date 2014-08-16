@@ -51,9 +51,11 @@ void cache_thread_init () {
 /* To add a new file to the cache. */
 struct file_t *cache_add_file (const char *path, const char *uri) {
 
+    int ret;
     struct file_t *file;
     struct stat file_status;
     mode_t mode = S_IRUSR | S_IWUSR;
+    struct file_info finfo;
     
     /* Checking to see if the file is already present. */
     file = table_lookup (hash_table, uri);
@@ -61,9 +63,10 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
     /* If the file was not present already in cache 
     condition becomes successful. */
     if (file == NULL) {
+        ret = mk_file_get_info(path, &finfo);
     
         /* Checking for validity of the function. */
-        if (stat(path, &file_status) == -1) 
+/*        if (stat(path, &file_status) == -1) 
             return NULL; 
         
         if (file_status.st_size <= 0)
@@ -72,6 +75,9 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         bool cond = (((file_status.st_mode & S_IFMT) == S_IFREG) || (S_ISREG(file_status.st_mode)));
         
         if (!cond) 
+            return NULL;*/
+
+        if (ret == -1)
             return NULL;
 
         /* When control reaches here, the existence of 
