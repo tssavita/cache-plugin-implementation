@@ -15,6 +15,6 @@
 #define UI_DIR_LEN 21
 
 #define MIME_CONF "/conf/mime.conf"
-#define MIME_CONF 5 
+#define MIME_CONF_LEN 5 
 
 #endif 

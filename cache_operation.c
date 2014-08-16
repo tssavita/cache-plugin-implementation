@@ -46,63 +46,49 @@ void cache_process_init () {
 void cache_thread_init () {
 }
 
-/* To check if the file is valid (whether it exists or not). */
-int isvalid (struct stat *file_status) {
-
-    mode_t mode = file_status->st_mode;
-
-    if (  ((mode & S_IFMT) == S_IFREG) || (S_ISREG(mode))  )
-        return true;
-    else if (file_status->st_size <= 0)
-        return false;
-
-    return true;
-}
-
 /* To add a new file to the cache. */
 struct file_t *cache_add_file (const char *path, const char *uri) {
 
     struct file_t *file;
     struct stat file_status;
     mode_t mode = S_IRUSR | S_IWUSR;
-    PLUGIN_TRACE ("Entered add_file1 ()");
     
     /* Checking to see if the file is already present. */
     file = table_lookup (hash_table, uri);
-    PLUGIN_TRACE ("Entered add_file1 ()");
 
     /* If the file was not present already in cache 
     condition becomes successful. */
     if (file == NULL) {
-    PLUGIN_TRACE ("Entered add_file1 () path - %s", path);
     
-        if (stat(path, &file_status) == -1) {
-    PLUGIN_TRACE ("Entered add_file1 () path - %s", path);
+        /* Checking for validity of the function. */
+        if (stat(path, &file_status) == -1) 
+            return NULL; 
+        
+        if (file_status.st_size <= 0)
             return NULL;
-        }
-    
-    PLUGIN_TRACE ("Entered add_file1 ()");
-        if (!isvalid(&file_status))
+
+        bool cond = (((mode & S_IFMT) == S_IFREG) || (S_ISREG(mode)));
+        
+        if (!cond) 
             return NULL;
-    
-    PLUGIN_TRACE ("Entered add_file1 ()");
+
+        /* When control reaches here, the existence of 
+           the file has been validated. */
+
         int fd = open (path, O_RDONLY, mode);
         if (fd == -1)
             handle_error("open");
 
-    PLUGIN_TRACE ("Entered add_file1 ()");
         /* Mapping file to memory using mmap() sys call. */
         int map_length = file_status.st_size;
         void *map_content = mmap (NULL, map_length, PROT_READ, MAP_SHARED,fd, 0);
         
-    PLUGIN_TRACE ("Entered add_file1 ()");
         if (map_content == MAP_FAILED) {
             close (fd);
             perror ("Error mapping file");
             exit(EXIT_FAILURE);
         }
         
-    PLUGIN_TRACE ("Entered add_file1 ()");
         /* Allocating space and filling in fields of the file. */
         file = mk_api->mem_alloc(sizeof(struct file_t));
         strncpy(file->name, uri, MAX_LENGTH_NAME);
@@ -110,7 +96,6 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         file->content.len = map_length;
         file->count = 1;
 
-    PLUGIN_TRACE ("Entered add_file1 ()");
         int htable_insert = table_insert (hash_table, uri, file);
         int mheap_insert = heap_insert (heap, uri);
 
@@ -120,7 +105,6 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         }
     }
 
-    PLUGIN_TRACE ("Returning ! from add file phew Amma please save me !\n ");
     return file;
 }
 

@@ -36,10 +36,12 @@ struct heap_t *heap_create() {
     if (!heap)
         return NULL;
 
-    heap->heapsize = TABLE_SIZE;
-    PLUGIN_TRACE ("Created min heap");
-    heap->heap_array  = malloc(TABLE_SIZE * (sizeof(struct node_count)));
+    heap->heapsize = 0;
 
+    int space = TABLE_SIZE * (sizeof(struct node_count));
+    heap->heap_array  = malloc(space);
+    
+    memset(heap->heap_array, 0, space);
     
     return heap;
 }
@@ -58,7 +60,7 @@ int heap_insert(struct heap_t *heap, const char *name) {
         return false;
 
     node->count = 1;
-    strcmp(node->name, name);
+    strcpy(node->name, name);
 
     heap->heapsize++;
     if (heap->heapsize == 1000)
