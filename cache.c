@@ -61,8 +61,6 @@ int _mkp_init(struct plugin_api **api, char *confdir)
 
     (void) confdir;
     mk_api = *api;
-    PLUGIN_TRACE("conf_path - %s", conf_path);
-    PLUGIN_TRACE("conf_dir - %s", confdir);
 
     PLUGIN_TRACE("Initializing");
 
@@ -77,9 +75,7 @@ int _mkp_init(struct plugin_api **api, char *confdir)
 
     pthread_mutex_init(&mutex_proxy_backend, (pthread_mutexattr_t *) NULL);
     mk_list_init(&proxy_channels);
-    PLUGIN_TRACE ("Initializing cache before cache_init ()\n");
     cache_process_init();
-    PLUGIN_TRACE ("Initializing cache\n");
 
     return 0;
 }
@@ -121,12 +117,9 @@ void _mkp_core_thctx () {
 int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     mk_api->header_set_http_status (sr, MK_HTTP_OK);
 
-    PLUGIN_TRACE("Step1");
-
     cJSON *root, *reqs;
     char *msg_to_send;
     char *mime_string = "type.json";
-    PLUGIN_TRACE("Step1");
 
     mk_ptr_t *type_ptr;
     type_ptr = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
@@ -196,14 +189,17 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
         if (url.len == 11 && memcmp(url.data, "/index.html", 11) == 0) {
             memset (path, '\0', sizeof(path));
 
-            PLUGIN_TRACE("path in stats - %s", PLUGDIR);
-            memcpy(path, PLUGDIR, MAX_PATH_LEN);
+            PLUGIN_TRACE("path in stats - %s, %d", PLUGDIR, strlen(PLUGDIR));
+            int pluglen = strlen(PLUGDIR);
+            memcpy(path, PLUGDIR, pluglen);
             int level_1 = strlen(path);
             PLUGIN_TRACE("path in stats - %s", path);
-            memcpy(path + level_1, UI_URL, MAX_PATH_LEN);
+            int pluglen2 = pluglen + strlen(UI_URL);
+            memcpy(path + level_1, UI_URL, pluglen2);
             int level_2 = strlen(path);
             PLUGIN_TRACE("path in stats - %s", path);
-            memcpy(path + level_2, UI_DIR, MAX_PATH_LEN);
+            int pluglen3 = pluglen2 + strlen(UI_DIR);
+            memcpy(path + level_2, UI_DIR, pluglen3);
             PLUGIN_TRACE("path in stats - %s", path);
 
             path_len = strlen(path);
@@ -218,7 +214,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
             }
         }
     }
-    PLUGIN_TRACE ("path = %s", path);
+    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
             
     if (!file_found) 
         file = cache_add_file (path, uri);
@@ -228,7 +224,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     mk_api->header_set_http_status (sr, MK_HTTP_OK);
     sr->headers.content_length = file->content.len;
-//    sr->headers.real_length = file->size;
+    sr->headers.real_length = file->content.len;
 
     /* Using the mime type module of Monkey server to find 
      out the content type of the requested file and fill up
@@ -237,26 +233,34 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     mk_ptr_t *file_name = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
     mk_ptr_t_set(file_name, path);
 
-    struct mimetype *mime = mk_api->mem_alloc_z(sizeof(mk_ptr_t));;
+    struct mimetype *mime = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
     mime = mk_mimetype_find(file_name);
+    if (mime == NULL) { 
+    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
+        mime = mimetype_default;
+    }
     sr->headers.content_type = mime->type;
-    
-    mk_api->header_send(cs->socket, cs, sr);
-    mk_api->socket_send(cs->socket, file->content.data, file->content.len);
     PLUGIN_TRACE ("file = %s", file->content.data);
+    
+//    sr->headers.sent = MK_TRUE;
+    mk_api->header_send(cs->socket, cs, sr);
+    size_t bytes = mk_api->socket_send(cs->socket, file->content.data, file->content.len);
 
-    sr->headers.sent = MK_TRUE;
-
+    PLUGIN_TRACE ("path = %s, %d, %d, %d", path, strlen(path), bytes, strlen(file->content.data));
+            
     memset (uri, '\0', sizeof(uri));
     memset (path, '\0', sizeof(path));
+    PLUGIN_TRACE ("file = %s", file->content.data);
 
+//    free(file);
+//    free(mime);
+//    free(file_name);
     return MK_PLUGIN_RET_END;
 }
 
 int _mkp_event_error (int socket_fd) {
     
     PLUGIN_TRACE("[FD %i] An error occured", socket_fd);
-    /*cache_request_delete (socket_fd);*/
 
     return MK_PLUGIN_RET_EVENT_NEXT;
 }
@@ -264,7 +268,6 @@ int _mkp_event_error (int socket_fd) {
 int _mkp_event_timeout (int socket_fd) {
     
     PLUGIN_TRACE("[FD %i] Request timed out", socket_fd);
-    /*cache_request_delete (socket_fd);*/
     
     return MK_PLUGIN_RET_EVENT_NEXT;
 }
