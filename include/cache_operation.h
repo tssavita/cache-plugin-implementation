@@ -45,8 +45,6 @@ void cache_process_init();
 
 void cache_thread_init ();
 
-int isvalid (struct stat *file_status);
-
 void file_access_count (struct file_t *file);
 
 struct file_t *cache_add_file (const char *uri, const char *content);

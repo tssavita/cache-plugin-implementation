@@ -67,7 +67,7 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         if (file_status.st_size <= 0)
             return NULL;
 
-        bool cond = (((mode & S_IFMT) == S_IFREG) || (S_ISREG(mode)));
+        bool cond = (((file_status.st_mode & S_IFMT) == S_IFREG) || (S_ISREG(file_status.st_mode)));
         
         if (!cond) 
             return NULL;

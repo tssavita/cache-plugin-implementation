@@ -49,7 +49,8 @@ struct heap_t *heap_create() {
 /* Function to insert file node into the min heap. */
 
 int heap_insert(struct heap_t *heap, const char *name) {
-    PLUGIN_TRACE("Inserted into min heap - \n");
+
+    int name_len = 0;
 
     if (!heap)
         return false;
@@ -60,7 +61,8 @@ int heap_insert(struct heap_t *heap, const char *name) {
         return false;
 
     node->count = 1;
-    strcpy(node->name, name);
+    name_len = strlen(name);
+    strncpy(node->name, name, name_len);
 
     heap->heapsize++;
     if (heap->heapsize == 1000)
@@ -128,7 +130,7 @@ void heap_destroy (struct heap_t *heap) {
     if (!heap)
         return;
 
-    struct node_count *node;
+    struct node_count *node = malloc(sizeof(struct node_count));
     for (i = 0; i < heap->heapsize; i++) {
         *node = heap->heap_array[i];
         free(node);

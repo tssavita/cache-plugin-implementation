@@ -21,11 +21,18 @@
 #include <string.h>
 #include <math.h>
 
+#include "mk_info.h"
 #include "MKPlugin.h"
 #include "mk_http.h"
 #include "errno.h"
 #include "mk_mimetype.h"
 #include "mk_memory.h"
+#include "mk_config.h"
+#include "mk_file.h"
+#include "monkey.h"
+#include "mk_string.h"
+#include "mk_utils.h"
+#include "mk_request.h"
 
 //#include "cache.h"
 #include "include/cJSON.h"
@@ -35,12 +42,12 @@
 #include "include/cache_stats.h"
 //#include "include/request.h"
 #include "include/constants.h"
+//#include "include/file_type.h"
 
 MONKEY_PLUGIN("cache",             /* shortname */
               "Monkey Caching plugin",             /* name */
               VERSION,             /* version */
-              MK_PLUGIN_STAGE_30 );
-//              MK_PLUGIN_CORE_PRCTX | MK_PLUGIN_CORE_THCTX); /* hooks */
+              MK_PLUGIN_STAGE_30 | MK_PLUGIN_CORE_PRCTX | MK_PLUGIN_CORE_THCTX); /* hooks */
 
 char conf_path[MAX_PATH_LEN];
 int conf_path_len;
@@ -66,7 +73,7 @@ int _mkp_init(struct plugin_api **api, char *confdir)
         exit(EXIT_FAILURE);
     }
 
-//    mk_mimetype_read_config();
+    mk_mimetype_read_config();
 
     pthread_mutex_init(&mutex_proxy_backend, (pthread_mutexattr_t *) NULL);
     mk_list_init(&proxy_channels);
@@ -118,37 +125,34 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
 
     cJSON *root, *reqs;
     char *msg_to_send;
-/*    char *mime_string = ".json";
+    char *mime_string = "type.json";
+    PLUGIN_TRACE("Step1");
 
-    struct mimetype *mime;
-    mk_ptr_t *type;
-    mk_ptr_t_set(type, mime_string);*/
-    PLUGIN_TRACE("Step2");
-    
+    mk_ptr_t *type_ptr;
+    type_ptr = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
+    mk_ptr_t_set(type_ptr, mime_string);
+
     root = cJSON_CreateObject();
-    PLUGIN_TRACE("Step2");
     reqs = cJSON_CreateObject();
     
-    PLUGIN_TRACE("Step3");
     cJSON_AddItemToObject(root, "requests", reqs);
-    PLUGIN_TRACE("Step3");
-//    global_stats->reqs_psec = 30;
     cJSON_AddNumberToObject(reqs, "finished_per_sec", global_stats.reqs_psec);
-    PLUGIN_TRACE("Step4");
 
     msg_to_send = cJSON_Print(root);
     sr->headers.content_length = strlen(msg_to_send);
     sr->headers.real_length = strlen(msg_to_send);
-/*    mime = mk_mimetype_find(type);
+    struct mimetype *mime = mk_api->mem_alloc_z(sizeof(struct mimetype));
+    mime = mk_mimetype_find(type_ptr);
 
-    sr->headers.content_type = mime->type;*/
+    if (!mime)
+        PLUGIN_TRACE("mime is null");
+
+    sr->headers.content_type = mime->type;
     mk_api->header_send(cs->socket, cs, sr);
     mk_api->socket_send(cs->socket, msg_to_send, strlen(msg_to_send));
-    PLUGIN_TRACE("Step5");
 
     cJSON_Delete(root);
     free(msg_to_send);
-    PLUGIN_TRACE("Step6");
     return MK_PLUGIN_RET_END;
 }
 
@@ -160,9 +164,9 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     (void) cs;
     char uri[MAX_URI_LEN];
     char path[MAX_PATH_LEN];
+    int file_found = 0;
 
     struct file_t *file;
-//    struct mimetype *mime;
 
     cache_stats_new();
 
@@ -189,68 +193,62 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
             return cJSON_stats(cs, sr);
         }
 
-        if (url.len == 5 && memcmp(url.data, "/ui_2", 5) == 0) {
-            // remove the '/' as its already exists at the
-            // end of conf_dir
+        if (url.len == 11 && memcmp(url.data, "/index.html", 11) == 0) {
             memset (path, '\0', sizeof(path));
 
-            url.data += 1;
-            url.len -= 1;
-             
-            mk_bug(conf_path_len + url.len >= MAX_PATH_LEN);
-
-            memcpy(path, conf_path, conf_path_len);
+            PLUGIN_TRACE("path in stats - %s", PLUGDIR);
+            memcpy(path, PLUGDIR, MAX_PATH_LEN);
+            int level_1 = strlen(path);
             PLUGIN_TRACE("path in stats - %s", path);
-            memcpy(path + conf_path_len, url.data, url.len);
+            memcpy(path + level_1, UI_URL, MAX_PATH_LEN);
+            int level_2 = strlen(path);
             PLUGIN_TRACE("path in stats - %s", path);
-            memset (path, '\0', sizeof(path));
-            memcpy(path, "/home/savita/july_1/plugins/cache/conf/ui_2/index.html", MAX_PATH_LEN);
-
-            PLUGIN_TRACE("path %s", path);
+            memcpy(path + level_2, UI_DIR, MAX_PATH_LEN);
+            PLUGIN_TRACE("path in stats - %s", path);
 
             path_len = strlen(path);
             
             path[path_len] = '\0';
 
-            // -1 for including the backslash
-            file = cache_add_file(path, "/index.html");
+            PLUGIN_TRACE("path in stats - %s", path);
+            file = cache_add_file(path, url.data);
+            if (file != NULL) {
+                file_found = 1;
+            PLUGIN_TRACE("file found or not - %d", file_found);
+            }
         }
     }
     PLUGIN_TRACE ("path = %s", path);
             
-    if (!file)
+    if (!file_found) 
         file = cache_add_file (path, uri);
-
-
-    if (!file)
+    
+    if (!file) 
         return MK_PLUGIN_RET_NOT_ME;
 
-    PLUGIN_TRACE ("Going to set status\n");
-
     mk_api->header_set_http_status (sr, MK_HTTP_OK);
-    sr->headers.content_length = file->size;
-    sr->headers.real_length = file->size;
+    sr->headers.content_length = file->content.len;
+//    sr->headers.real_length = file->size;
 
     /* Using the mime type module of Monkey server to find 
      out the content type of the requested file and fill up
      the content_type field in the request header.*/
 
-    /*mk_ptr_t *file_name;
-    mk_ptr_t_set(file_name, full_path);
+    mk_ptr_t *file_name = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
+    mk_ptr_t_set(file_name, path);
+
+    struct mimetype *mime = mk_api->mem_alloc_z(sizeof(mk_ptr_t));;
     mime = mk_mimetype_find(file_name);
-    if (!mime)
-        mime = mimetype_default;*/
-    sr->headers.content_type.data = "text/html";
-    sr->headers.content_type.len = 9;
+    sr->headers.content_type = mime->type;
+    //sr->headers.content_type.data = "text/html\n";
+//    sr->headers.content_type.len = 10;
 //    sr->headers.content_encoding.data = "UTF-8";
     
     mk_api->header_send(cs->socket, cs, sr);
-    mk_api->socket_send(cs->socket, file->content.data, file->size);
+    mk_api->socket_send(cs->socket, file->content.data, file->content.len);
     PLUGIN_TRACE ("file = %s", file->content.data);
 
     sr->headers.sent = MK_TRUE;
-
-    PLUGIN_TRACE ("file = %s", file);
 
     memset (uri, '\0', sizeof(uri));
     memset (path, '\0', sizeof(path));
