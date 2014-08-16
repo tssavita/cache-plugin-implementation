@@ -20,8 +20,9 @@
 #include <regex.h>
 
 #include <monkey/mk_plugin.h>
+#include <monkey/mk_api.h>
 #include "include/cache.h"
-#include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
+//#include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 #include "include/cache_conf.h"
 
 /* Lookup a backend (defined in proxy.conf) by it's host pointer ref */

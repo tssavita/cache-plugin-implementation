@@ -25,7 +25,8 @@
 #include "include/utils.h"
 #include <monkey/mk_plugin.h>
 #include <monkey/mk_memory.h>
-#include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
+#include <monkey/mk_api.h>
+//#include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 
 /* Create hash table structure. */
 struct table_t *table_create () {

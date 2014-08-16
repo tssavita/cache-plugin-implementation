@@ -29,11 +29,13 @@
 #include <fcntl.h>
 #include <string.h>
 
+#include "include/cache.h"
 #include "include/cache_operation.h"
 #include "include/hash_table.h"
 #include "include/min_heap.h"
 #include "include/utils.h"
-#include <monkey/MKPlugin.h>
+#include <monkey/mk_plugin.h>
+#include <monkey/mk_api.h>
 
 void cache_process_init () {
 

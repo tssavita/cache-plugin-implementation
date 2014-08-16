@@ -32,6 +32,7 @@
 #include <monkey/mk_string.h>
 #include <monkey/mk_utils.h>
 #include <monkey/mk_request.h>
+#include <monkey/mk_api.h>
 
 //#include "cache.h"
 #include "include/cJSON.h"
@@ -119,7 +120,7 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
 
     mk_ptr_t *type_ptr;
     type_ptr = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
-    mk_ptr_t_set(type_ptr, mime_string);
+    mk_ptr_set(type_ptr, mime_string);
 
     root = cJSON_CreateObject();
     reqs = cJSON_CreateObject();
@@ -227,7 +228,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
      the content_type field in the request header.*/
 
     mk_ptr_t *file_name = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
-    mk_ptr_t_set(file_name, path);
+    mk_ptr_set(file_name, path);
 
     struct mimetype *mime = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
     mime = mk_mimetype_find(file_name);

@@ -17,6 +17,7 @@
  *  limitations under the License.
  */
 
+#include <monkey/mk_api.h>
 #include "include/cache_stats.h"
 #include <time.h>
 
