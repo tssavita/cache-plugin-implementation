@@ -240,9 +240,6 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     struct mimetype *mime = mk_api->mem_alloc_z(sizeof(mk_ptr_t));;
     mime = mk_mimetype_find(file_name);
     sr->headers.content_type = mime->type;
-    //sr->headers.content_type.data = "text/html\n";
-//    sr->headers.content_type.len = 10;
-//    sr->headers.content_encoding.data = "UTF-8";
     
     mk_api->header_send(cs->socket, cs, sr);
     mk_api->socket_send(cs->socket, file->content.data, file->content.len);
