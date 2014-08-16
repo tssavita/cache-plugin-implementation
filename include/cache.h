@@ -20,7 +20,7 @@
 #ifndef MK_PROXY_H
 #define MK_PROXY_H
 
-#include <monkey/MKPlugin.h>
+#include <monkey/mk_plugin.h>
 #include "regex.h"
 
 /* Protocols supported by the Proxy */
