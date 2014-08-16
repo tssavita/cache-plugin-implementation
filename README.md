@@ -1,16 +1,16 @@
 Monkey Caching Plugin
 =====================
 
-This caching plugin has been written with the aim to improve the already high performance of Monkey HTTP Server and make it even better. It caches the static files handled by the server.
+This caching plugin has been written with the aim to improve the already high performance of Monkey HTTP Server and make it even better. It caches the static files handled by the server.  
 
 Installation
 ============
 
-$ git clone https://github.com/monkey/monkey.git
-$ cd monkey
-$ git clone https://github.com/tssavita/cache-plugin-implementation.git plugins/cache/
-$ ./configure --malloc-libc 
-$ make
+$ git clone https://github.com/monkey/monkey.git  
+$ cd monkey  
+$ git clone https://github.com/tssavita/cache-plugin-implementation.git plugins/cache/  
+$ ./configure --malloc-libc  
+$ make  
 $ bin/monkey
 
 Status
