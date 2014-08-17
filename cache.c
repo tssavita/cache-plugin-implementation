@@ -35,6 +35,7 @@
 #include <monkey/mk_api.h>
 
 //#include "cache.h"
+#include "include/cache_conf.h"
 #include "include/cJSON.h"
 #include "include/cache_operation.h"
 #include "include/cache_stats.h"
@@ -45,17 +46,13 @@ MONKEY_PLUGIN("cache",             /* shortname */
               VERSION,             /* version */
               MK_PLUGIN_STAGE_30 | MK_PLUGIN_CORE_PRCTX | MK_PLUGIN_CORE_THCTX); /* hooks */
 
-char conf_path[MAX_PATH_LEN];
-int conf_path_len;
-
 /* Init plugin */
 int _mkp_init(struct plugin_api **api, char *confdir)
 {
-    memcpy(conf_path, confdir, MAX_PATH_LEN);
-    conf_path_len = strlen(conf_path);
-
     (void) confdir;
     mk_api = *api;
+
+    cache_config_file_read(confdir);
 
     PLUGIN_TRACE("Initializing");
     mk_mimetype_read_config();
@@ -228,16 +225,3 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     return MK_PLUGIN_RET_END;
 }
 
-/* int _mkp_event_error (int socket_fd) {
-    
-    PLUGIN_TRACE("[FD %i] An error occured", socket_fd);
-
-    return MK_PLUGIN_RET_EVENT_NEXT;
-}*/
-
-/*int _mkp_event_timeout (int socket_fd) {
-    
-    PLUGIN_TRACE("[FD %i] Request timed out", socket_fd);
-    
-    return MK_PLUGIN_RET_EVENT_NEXT;
-}*/

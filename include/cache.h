@@ -21,6 +21,7 @@
 #define MK_PROXY_H
 
 #include <monkey/mk_plugin.h>
+#include <monkey/mk_api.h>
 #include "regex.h"
 
 /* Protocols supported by the Proxy */
@@ -32,6 +33,9 @@
 
 /* Default number of backend connections */
 #define PROXY_BACKEND_CONNECTIONS    16
+
+
+struct plugin_api *mk_api;
 
 /* A backend server */
 struct proxy_backend {
