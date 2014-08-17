@@ -51,7 +51,6 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
 
     int ret;
     struct file_t *file;
-    struct stat file_status;
     mode_t mode = S_IRUSR | S_IWUSR;
     struct file_info finfo;
     
@@ -62,10 +61,14 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
     condition becomes successful. */
     if (file == NULL) {
 
-        /* Function from mk_file.c to check the validity of the existence of the function. */
+        /* Function from mk_file.c to check the validity of the 
+           existence of the function. */
         ret = mk_file_get_info(path, &finfo);
     
-        /* Another way to check the function. It was found that using 'mk_file_get_info' was better in terms of performance and hence decided to stick with it. */
+        /* Another way to check the function. It was found that 
+           using 'mk_file_get_info' was better in terms of performance 
+           and hence decided to stick with it. */
+
 /*        if (stat(path, &file_status) == -1) 
             return NULL; 
         
@@ -88,7 +91,7 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
             handle_error("open");
 
         /* Mapping file to memory using mmap() sys call. */
-        int map_length = file_status.st_size;
+        int map_length = finfo.size;
         void *map_content = mmap (NULL, map_length, PROT_READ, MAP_SHARED,fd, 0);
         
         if (map_content == MAP_FAILED) {
