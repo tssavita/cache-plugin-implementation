@@ -3,8 +3,6 @@
 
 #include <monkey/mk_api.h>
 
-struct plugin_api *mk_api;
-
 struct cache_config {
     int max_file_size;
     int expiry_time;

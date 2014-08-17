@@ -20,8 +20,20 @@ void cache_config_file_read(char *path) {
     }
 
     cache_conf = mk_api->mem_alloc(sizeof(struct cache_config));
+
     cache_conf->max_file_size = (size_t) mk_api->config_section_getval(section, "MaxFileSize", MK_CONFIG_VAL_STR);
+
+    if (cache_conf->max_file_size <= 0) 
+        mk_err("MaxFileSize cannot be zero");
+    else
+        cache_conf->max_file_size *= 1024;
+
     cache_conf->expiry_time = (size_t) mk_api->config_section_getval(section, "ExpiryTime", MK_CONFIG_VAL_STR);
+
+    if (config->timeout < 1) 
+        mk_err("Timeout should be set");
+
+
     cache_conf->mime_types_list = mk_api->config_section_getval(section, "MimeTypesList", MK_CONFIG_VAL_STR);
 
     mk_api->mem_free(default_file);
