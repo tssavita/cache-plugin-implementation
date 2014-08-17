@@ -15,4 +15,6 @@ typedef enum {false, true} bool;
 
 #define REQ_LIST_LIMIT 24
 
+char *file_ext(char *filename);
+
 #endif

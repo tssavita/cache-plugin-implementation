@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include "include/cache.h"
+#include "include/cache_conf.h"
 #include "include/cache_operation.h"
 #include "include/hash_table.h"
 #include "include/min_heap.h"
@@ -85,6 +86,9 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
 
         /* When control reaches here, the existence of 
            the file has been validated. */
+
+        if (finfo.size >= cache_conf->max_file_size) 
+            return NULL;
 
         int fd = open (path, O_RDONLY, mode);
         if (fd == -1)

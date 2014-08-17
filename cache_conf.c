@@ -34,7 +34,7 @@ void cache_config_file_read(char *path) {
         mk_err("Timeout should be set");
 
 
-    cache_conf->mime_types_list = mk_api->config_section_getval(section, "MimeTypesList", MK_CONFIG_VAL_STR);
+    cache_conf->mime_types_list = mk_api->config_section_getval(section, "MimeTypesList", MK_CONFIG_VAL_LIST);
 
     mk_api->mem_free(default_file);
 }
