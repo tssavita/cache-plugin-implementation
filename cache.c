@@ -36,7 +36,6 @@
 
 //#include "cache.h"
 #include "include/cJSON.h"
-#include "include/cache_conf.h"
 #include "include/cache_operation.h"
 #include "include/cache_stats.h"
 #include "include/constants.h"
@@ -52,7 +51,6 @@ int conf_path_len;
 /* Init plugin */
 int _mkp_init(struct plugin_api **api, char *confdir)
 {
-    int ret;
     memcpy(conf_path, confdir, MAX_PATH_LEN);
     conf_path_len = strlen(conf_path);
 
@@ -60,18 +58,8 @@ int _mkp_init(struct plugin_api **api, char *confdir)
     mk_api = *api;
 
     PLUGIN_TRACE("Initializing");
-
-    /* Start the plugin configuration */
-    ret = proxy_conf_init(confdir);
-    if (ret != 0) {
-        mk_err("Proxy configuration failed. Aborting.");
-        exit(EXIT_FAILURE);
-    }
-
     mk_mimetype_read_config();
 
-    pthread_mutex_init(&mutex_proxy_backend, (pthread_mutexattr_t *) NULL);
-    mk_list_init(&proxy_channels);
     cache_process_init();
 
     return 0;
@@ -139,7 +127,7 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     return MK_PLUGIN_RET_END;
 }
 
-/* Content handler: the real proxy stuff happens here */
+/* Content handler: the request is handled here. */
 int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
                   struct session_request *sr) {
 
