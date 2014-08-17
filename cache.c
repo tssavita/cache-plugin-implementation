@@ -231,10 +231,8 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     
     sr->headers.sent = MK_TRUE;
     mk_api->header_send(cs->socket, cs, sr);
-    size_t bytes = mk_api->socket_send(cs->socket, file->content.data, file->content.len);
+    mk_api->socket_send(cs->socket, file->content.data, file->content.len);
 
-    PLUGIN_TRACE ("path = %s, %d, %d, %d", path, strlen(path), bytes, strlen(file->content.data));
-            
     memset (uri, '\0', sizeof(uri));
     memset (path, '\0', sizeof(path));
     PLUGIN_TRACE ("file = %s", file->content.data);
