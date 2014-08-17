@@ -39,6 +39,7 @@ struct file_t {
     mk_ptr_t content;
     size_t size;
     int count;
+    time_t mapped_at;
 };
 
 void cache_process_init();

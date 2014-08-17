@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <time.h>
 
 #include "include/cache.h"
 #include "include/cache_conf.h"
@@ -94,6 +95,8 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         if (fd == -1)
             handle_error("open");
 
+        file = mk_api->mem_alloc(sizeof(struct file_t));
+
         /* Mapping file to memory using mmap() sys call. */
         int map_length = finfo.size;
         void *map_content = mmap (NULL, map_length, PROT_READ, MAP_SHARED,fd, 0);
@@ -103,9 +106,12 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
             perror ("Error mapping file");
             exit(EXIT_FAILURE);
         }
-        
+
         /* Allocating space and filling in fields of the file. */
-        file = mk_api->mem_alloc(sizeof(struct file_t));
+        time_t now;
+        time(&now);
+
+        file->mapped_at = now;
         strncpy(file->name, uri, MAX_LENGTH_NAME);
         file->content.data = map_content;
         file->content.len = map_length;
@@ -138,8 +144,17 @@ struct file_t *cache_lookup_file (const char *uri) {
     struct file_t *file = table_lookup (hash_table, uri);
     if (file == NULL) 
         return NULL;
-    else
-        file_access_count (file);
+/*    else
+        file_access_count (file);*/
+
+    time_t now;
+    time(&now);
+
+    int time_diff = difftime(file->mapped_at, now);
+
+    if (time_diff >= cache_conf->expiry_time)
+        PLUGIN_TRACE("Unmapping file from the memory since its cache time expired.");
+        cache_unmap_file (file);
 
     return file;
 }

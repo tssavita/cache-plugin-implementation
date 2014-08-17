@@ -33,6 +33,7 @@
 #include <monkey/mk_utils.h>
 #include <monkey/mk_request.h>
 #include <monkey/mk_api.h>
+#include <monkey/mk_list.h>
 
 //#include "cache.h"
 #include "include/cache_conf.h"
@@ -40,6 +41,7 @@
 #include "include/cache_operation.h"
 #include "include/cache_stats.h"
 #include "include/constants.h"
+#include "include/utils.h"
 
 MONKEY_PLUGIN("cache",             /* shortname */
               "Monkey Caching plugin",             /* name */
@@ -148,6 +150,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     memcpy (path, sr->real_path.data, path_len);
     uri[uri_len] = '\0';
     path[path_len] = '\0';
+            PLUGIN_TRACE("path in stats - %s", path);
 
     if (uri_len > 6 && memcmp(uri, UI_URL, UI_URL_LEN) == 0) {
 
@@ -190,18 +193,21 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     if (!file_found) 
         file = cache_add_file (path, uri);
     
-    if (!file) 
+    if (!file) {
+    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
         return MK_PLUGIN_RET_NOT_ME;
+    }
 
     mk_api->header_set_http_status (sr, MK_HTTP_OK);
     sr->headers.content_length = file->content.len;
     sr->headers.real_length = file->content.len;
+    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
 
     /* Using the mime type module of Monkey server to find 
      out the content type of the requested file and fill up
      the content_type field in the request header.*/
 
-    mk_ptr_t *file_name = malloc(sizeof(mk_ptr_t));
+/*    mk_ptr_t *file_name = malloc(sizeof(mk_ptr_t));
     memset(file_name, 0, sizeof(mk_ptr_t));
     mk_ptr_set(file_name, path);
 
@@ -211,7 +217,33 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
         mime = mimetype_default;
     }
+    sr->headers.content_type = mime->type;*/
+
+
+    struct mk_list *head;
+    struct mk_string_line *entry;
+    char *ext = file_ext(path);
+    struct mimetype *mime = mk_api->mem_alloc_z(sizeof(mk_ptr_t));
+    mk_ptr_t *type_ptr = malloc(sizeof(mk_ptr_t));
+    memset(type_ptr, 0, sizeof(mk_ptr_t));
+    PLUGIN_TRACE ("path = %s, %d, %s, %d, %d", path, strlen(path), ext, cache_conf->max_file_size, cache_conf->expiry_time);
+
+    if (cache_conf->mime_types_list)
+        PLUGIN_TRACE("List is null");
+    
+    mk_list_foreach(head, cache_conf->mime_types_list) {
+        entry = mk_list_entry(head, struct mk_string_line, _head);
+    PLUGIN_TRACE ("path = %s, %d, %s, %s", path, strlen(path), entry->val, ext);
+
+        if (strcmp(ext, entry->val) == 0) 
+            break;
+    }
+    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
+
+    mime = mk_mimetype_lookup(ext);
+    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
     sr->headers.content_type = mime->type;
+
     PLUGIN_TRACE ("file = %s", file->content.data);
     
     sr->headers.sent = MK_TRUE;
