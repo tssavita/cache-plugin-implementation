@@ -25,3 +25,5 @@ The highlight feature of this plugin is it uses the system call 'mmap' to map on
 
 User Interface
 ==============
+
+To view the statistics graphically, you could go to 'http://localhost:2001/cache/index.html'. You also have the option of completely clearing the cache from the user interface and of viewing the number of hits and misses that the plugin encountered.
