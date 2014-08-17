@@ -80,7 +80,6 @@ int _mkp_init(struct plugin_api **api, char *confdir)
 /* Exit plugin */
 void _mkp_exit()
 {
-    //request_finish ();
     PLUGIN_TRACE("Exiting");
 //    cache_destroy ();
 }
@@ -91,8 +90,6 @@ int _mkp_core_prctx (struct server_config *conf) {
 
     PLUGIN_TRACE ("Starting process hooks for caching plugin");
 
-    /*cache_request_process_init ();
-    request_process_init ();*/
     cache_process_init ();
     cache_stats_process_init ();
     
@@ -105,8 +102,6 @@ void _mkp_core_thctx () {
 
     PLUGIN_TRACE ("Starting thread hooks for caching plugin");
 
-/*    cache_request_thread_init ();
-    request_thread_init ();*/
     cache_thread_init ();
     cache_stats_thread_init ();
 }
@@ -187,16 +182,12 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
             memcpy(path, PLUGDIR, pluglen);
 
             int level_1 = strlen(path);
-            PLUGIN_TRACE("path in stats - %s", path);
             int pluglen2 = pluglen + strlen(UI_URL);
             memcpy(path + level_1, UI_URL, pluglen2);
 
             int level_2 = strlen(path);
-            PLUGIN_TRACE("path in stats - %s", path);
             int pluglen3 = pluglen2 + strlen(UI_DIR);
             memcpy(path + level_2, UI_DIR, pluglen3);
-
-            PLUGIN_TRACE("path in stats - %s", path);
 
             path_len = strlen(path);
             path[path_len] = '\0';
@@ -238,7 +229,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     sr->headers.content_type = mime->type;
     PLUGIN_TRACE ("file = %s", file->content.data);
     
-//    sr->headers.sent = MK_TRUE;
+    sr->headers.sent = MK_TRUE;
     mk_api->header_send(cs->socket, cs, sr);
     size_t bytes = mk_api->socket_send(cs->socket, file->content.data, file->content.len);
 
@@ -248,9 +239,6 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     memset (path, '\0', sizeof(path));
     PLUGIN_TRACE ("file = %s", file->content.data);
 
-//    free(file);
-//    free(mime);
-//    free(file_name);
     return MK_PLUGIN_RET_END;
 }
 

@@ -39,9 +39,7 @@
 
 void cache_process_init () {
 
-    PLUGIN_TRACE ("before hash table creation");
     hash_table = table_create();
-    PLUGIN_TRACE ("after hash table creation");
     heap = heap_create ();
 }
 
@@ -63,9 +61,11 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
     /* If the file was not present already in cache 
     condition becomes successful. */
     if (file == NULL) {
+
+        /* Function from mk_file.c to check the validity of the existence of the function. */
         ret = mk_file_get_info(path, &finfo);
     
-        /* Checking for validity of the function. */
+        /* Another way to check the function. It was found that using 'mk_file_get_info' was better in terms of performance and hence decided to stick with it. */
 /*        if (stat(path, &file_status) == -1) 
             return NULL; 
         

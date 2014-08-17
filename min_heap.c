@@ -137,27 +137,3 @@ void heap_destroy (struct heap_t *heap) {
     }
     free(heap);
 }
-
-/*int main (int argc, char ** argv) {
-    int n, ele;
-
-    printf("Enter the number of elements - ");
-    scanf("%d", &n);
-
-    createHeap();
-    
-    printf("Enter the elements - ");
-    int i = 0;
-    for (i = 0; i < n; i++) {
-        scanf("%d", &ele);
-        //insert(ele);
-    }
-    for (i = 0; i <= heapsize; i++)
-        printf("%d\n", heap[i]);
-
-    pop(); 
-    for (i = 0; i <= heapsize; i++)
-        printf("%d\n", heap[i]);
-    
-    return 0;
-}*/
