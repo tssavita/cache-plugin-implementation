@@ -242,16 +242,16 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     return MK_PLUGIN_RET_END;
 }
 
-int _mkp_event_error (int socket_fd) {
+/* int _mkp_event_error (int socket_fd) {
     
     PLUGIN_TRACE("[FD %i] An error occured", socket_fd);
 
     return MK_PLUGIN_RET_EVENT_NEXT;
-}
+}*/
 
-int _mkp_event_timeout (int socket_fd) {
+/*int _mkp_event_timeout (int socket_fd) {
     
     PLUGIN_TRACE("[FD %i] Request timed out", socket_fd);
     
     return MK_PLUGIN_RET_EVENT_NEXT;
-}
+}*/
