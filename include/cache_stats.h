@@ -36,7 +36,6 @@ struct cache_thread_stats {
     int finished_reqs;
 };
 
-pthread_key_t stats_thread;
 struct cache_thread_stats *thread_stats;
 struct cache_global_stats global_stats;
 
