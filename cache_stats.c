@@ -21,27 +21,33 @@
 #include "include/cache_stats.h"
 #include <time.h>
 
-static int iter = 0;
+static int workers = 0;
+int iter = 0;
+
+pthread_key_t stats_thread;
 
 void cache_stats_process_init () {
-    
-    int workers = mk_api->config->workers;
-    pthread_key_create (&stats_thread, NULL);
-    thread_stats = malloc (workers * sizeof(struct cache_thread_stats));
+    pthread_key_create(&stats_thread, NULL);
+    iter = mk_api->config->workers;
+    thread_stats = malloc (iter * sizeof(struct cache_thread_stats));
 }
 
 void cache_stats_thread_init () {
 
-    int workers = mk_api->config->workers;
-    if (iter >= workers) 
+    if (workers >= iter) 
         return;
 
-    struct cache_thread_stats *thread = &thread_stats[iter];
+    struct cache_thread_stats *thread = &thread_stats[workers];
     
-    thread->index = iter;
+    thread->index = workers;
     thread->reqs_psec = 0;
     thread->finished_reqs = 0;
-    iter++;
+
+    time_t stats_now;
+    time(&stats_now);
+
+    thread->started_at = stats_now;
+    workers++;
 
     pthread_setspecific (stats_thread, (void *) thread);
 }
@@ -53,9 +59,9 @@ void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
     
     int time_diff = difftime(stats->started_at, now);
     
-    if (time_diff > 1000) {
+    if (time_diff > 10) {
         stats->started_at = now;
-        stats->reqs_psec = stats->reqs_psec / (time_diff /1000);
+        stats->reqs_psec = stats->reqs_psec / (time_diff /1000.0);
         stats->finished_reqs = 0;
     }
 }
@@ -68,15 +74,14 @@ void cache_stats_update () {
         cache_stats_update_finreqs(&thread_stats[i]);
         reqs_psec = reqs_psec + thread_stats[iter].reqs_psec;
     }
+    PLUGIN_TRACE("stats->finished_reqs = %d", global_stats.reqs_psec);
 
-PLUGIN_TRACE("fin req = %d, global reqs = %d", reqs_psec, global_stats.reqs_psec);
-    
     global_stats.reqs_psec = reqs_psec;
 }
 
 void cache_stats_new () {
 
-    struct cache_thread_stats *stats = pthread_getspecific (stats_thread);
+    struct cache_thread_stats *stats = pthread_getspecific(stats_thread);
+    PLUGIN_TRACE("stats->finished_reqs = %d", stats->finished_reqs);
     stats->finished_reqs += 1;
-    PLUGIN_TRACE("fin req = %d", stats->finished_reqs);
 }
