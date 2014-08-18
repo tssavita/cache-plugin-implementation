@@ -129,7 +129,7 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     cJSON_AddItemToObject(root, "files", files);
 PLUGIN_TRACE("path in stats");
     table_file_info(hash_table, files);
-    PLUGIN_TRACE("path in stats");
+    PLUGIN_TRACE("path in stats ");
 
     msg_to_send = cJSON_Print(root);
     sr->headers.content_length = strlen(msg_to_send);
@@ -156,7 +156,7 @@ void *cJSON_stats_file(const char *key, void *val, void *result) {
     struct file_t *file_content = val;
     cJSON_AddItemToArray(files, file);
     cJSON_AddStringToObject(file, "name", file_content->name);
-    cJSON_AddNumberToObject(file, "size", strlen(val));
+    cJSON_AddNumberToObject(file, "size", file_content->size);
     return files;
 }
 

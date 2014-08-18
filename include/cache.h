@@ -25,6 +25,6 @@
 #include "regex.h"
 
 
-void cJSON_stats_file(const char *key, void *val, void *state);
+void *cJSON_stats_file(const char *key, void *val, void *state);
 
 #endif

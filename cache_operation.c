@@ -116,7 +116,7 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         file->content.data = map_content;
         file->content.len = map_length;
         file->count = 1;
-        file->size = map_length;
+        file->size = finfo.size;
 
         int htable_insert = table_insert (hash_table, uri, file);
         int mheap_insert = heap_insert (heap, uri);

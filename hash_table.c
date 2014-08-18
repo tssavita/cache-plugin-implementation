@@ -24,6 +24,10 @@
 #include "include/hash_table.h"
 #include "include/hash_func.h"
 #include "include/utils.h"
+#include "include/cJSON.h"
+#include "include/cache_operation.h"
+#include "include/cache_stats.h"
+
 #include <monkey/mk_plugin.h>
 #include <monkey/mk_memory.h>
 #include <monkey/mk_api.h>
@@ -69,7 +73,7 @@ void *table_file_info(struct table_t *table, void *result) {
     int i = 0;
     for (i = 0; i < table->table_size; i++) {
         for (temp = table->table_list[i]; temp; temp = temp->next) {
-//            result = cJSON_stats_file(temp->key, temp->data, result);
+            result = cJSON_stats_file(temp->key, temp->data, result);
         }
     }
     return result;
