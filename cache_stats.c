@@ -68,6 +68,8 @@ void cache_stats_update () {
         cache_stats_update_finreqs(&thread_stats[i]);
         reqs_psec = reqs_psec + thread_stats[iter].reqs_psec;
     }
+
+PLUGIN_TRACE("fin req = %d, global reqs = %d", reqs_psec, global_stats.reqs_psec);
     
     global_stats.reqs_psec = reqs_psec;
 }
@@ -76,4 +78,5 @@ void cache_stats_new () {
 
     struct cache_thread_stats *stats = pthread_getspecific (stats_thread);
     stats->finished_reqs += 1;
+    PLUGIN_TRACE("fin req = %d", stats->finished_reqs);
 }
