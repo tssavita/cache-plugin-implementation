@@ -108,7 +108,7 @@ int _mkp_event_read(int fd) {
 int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     mk_api->header_set_http_status (sr, MK_HTTP_OK);
 
-    cJSON *root, *reqs;
+    cJSON *root, *reqs, *files;
     char *msg_to_send;
     char *mime_string = "type.json";
 
@@ -124,6 +124,13 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     cJSON_AddItemToObject(root, "requests", reqs);
     cJSON_AddNumberToObject(reqs, "finished_per_sec", global_stats.reqs_psec);
 
+    files = cJSON_CreateObject();
+
+    cJSON_AddItemToObject(root, "files", files);
+PLUGIN_TRACE("path in stats");
+    table_file_info(hash_table, files);
+    PLUGIN_TRACE("path in stats");
+
     msg_to_send = cJSON_Print(root);
     sr->headers.content_length = strlen(msg_to_send);
     sr->headers.real_length = strlen(msg_to_send);
@@ -138,6 +145,19 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     cJSON_Delete(root);
     free(msg_to_send);
     return MK_PLUGIN_RET_END;
+}
+
+void *cJSON_stats_file(const char *key, void *val, void *result) {
+    cJSON *files = result;
+    cJSON *file = cJSON_CreateObject();
+
+    (void) key;
+
+    struct file_t *file_content = val;
+    cJSON_AddItemToArray(files, file);
+    cJSON_AddStringToObject(file, "name", file_content->name);
+    cJSON_AddNumberToObject(file, "size", strlen(val));
+    return files;
 }
 
 /* Content handler: the request is handled here. */

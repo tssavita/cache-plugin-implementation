@@ -54,6 +54,5 @@ void stats_timer_read() {
     int cnt = 0;
     if ((cnt = read(stats_timer_fd, timer, 8)) == 8) {
         cache_stats_update();
-//        cache_file_update();
     }
 }

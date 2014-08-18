@@ -17,82 +17,14 @@
  *  limitations under the License.
  */
 
-#ifndef MK_PROXY_H
-#define MK_PROXY_H
+#ifndef _CACHE_H_
+#define _CACHE_H_
 
 #include <monkey/mk_plugin.h>
 #include <monkey/mk_api.h>
 #include "regex.h"
 
-/* Protocols supported by the Proxy */
-#define PROXY_PROTOCOL_HTTP           1
-#define PROXY_PROTOCOL_HTTPS          2  /* not yet supported */
-#define PROXY_PROTOCOL_FASTCGI        4  /* not yet supported */
-#define PROXY_PROTOCOL_FASTCGI_UNIX   8  /* not yet supported */
-#define PROXY_PROTOCOL_SPDY          16  /* not yet supported */
 
-/* Default number of backend connections */
-#define PROXY_BACKEND_CONNECTIONS    16
-
-
-struct plugin_api *mk_api;
-
-/* A backend server */
-struct proxy_backend {
-    char    *name;        /* descriptive name */
-    char    *route;       /* original route */
-    char    *host;        /* target host IP */
-    char     cport[16];   /* TCP port in char */
-    int      port;        /* TCP port */
-    long     keepalive;   /* should we use KeepAlive connection ? */
-    int      protocol;    /* protocol, e.g: PROXY_PROTOCOL_XYZ */
-    int      connections; /* number of persistent connections */
-
-    /*
-     * Total number of slots still available to let workers initialize
-     * the connections to the backend.
-     */
-    int      _total_conx;
-
-    /* Available slots while initializing across workers */
-    int      _av_conx;
-
-    /* Balance difference */
-    int      _av_diff;
-
-    struct mk_list _head; /* proxy_config link */
-};
-
-/* A rule that exists under a Virtual Host [PROXY] */
-struct proxy_match {
-    struct proxy_backend *router;
-    regex_t regex;
-    struct mk_list _head;
-};
-
-/* Group a set of rules for a Virtual Host */
-struct proxy_vhost {
-    struct host *vhost;       /* Virtual host reference */
-    struct mk_list matches;   /* List of [PROXY] associated to this VHost */
-    struct mk_list _head;     /* Head to linked list */
-};
-
-/* A global channel to receive signals, mostly to restore suspended backends */
-struct proxy_worker_channel {
-    int channel[2];
-    struct mk_list _head;
-};
-
-/* A mutex to initialize backends on workers, just used on startup */
-pthread_mutex_t mutex_proxy_backend;
-
-/* Reference to th2e plugin with Monkey internals */
-struct plugin *proxy_plugin;
-
-/* Global channels for workers */
-struct mk_list proxy_channels;
-
-extern __thread int channel_read;
-extern __thread int channel_write;
+void cJSON_stats_file(const char *key, void *val, void *state);
 
 #endif

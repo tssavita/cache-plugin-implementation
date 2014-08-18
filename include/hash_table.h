@@ -42,6 +42,8 @@ struct table_t *table_create ();
 
 int table_insert (struct table_t *table, const char *key, void *data);
 
+void *table_file_info(struct table_t *table, void *result);
+
 void *table_lookup (struct table_t *table, const char *key);
 
 void *table_delete (struct table_t *table, const char *key);

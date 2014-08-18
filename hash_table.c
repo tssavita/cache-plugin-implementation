@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "include/cache.h"
 #include "include/hash_table.h"
 #include "include/hash_func.h"
 #include "include/utils.h"
@@ -60,6 +61,18 @@ int table_insert (struct table_t *table, const char *key, void *data) {
     table->table_list[index] = node;
 
     return true;
+}
+
+void *table_file_info(struct table_t *table, void *result) {
+    struct node_t *temp = malloc(sizeof(struct node_t));
+
+    int i = 0;
+    for (i = 0; i < table->table_size; i++) {
+        for (temp = table->table_list[i]; temp; temp = temp->next) {
+//            result = cJSON_stats_file(temp->key, temp->data, result);
+        }
+    }
+    return result;
 }
 
 /* Looking up a value in the hash table. */
