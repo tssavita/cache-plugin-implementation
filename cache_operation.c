@@ -144,17 +144,18 @@ struct file_t *cache_lookup_file (const char *uri) {
     struct file_t *file = table_lookup (hash_table, uri);
     if (file == NULL) 
         return NULL;
-/*    else
-        file_access_count (file);*/
+    else
+        file_access_count (file);
 
     time_t now;
     time(&now);
 
     int time_diff = difftime(file->mapped_at, now);
 
-    if (time_diff >= cache_conf->expiry_time)
+    if (time_diff >= cache_conf->expiry_time) {
         PLUGIN_TRACE("Unmapping file from the memory since its cache time expired.");
         cache_unmap_file (file);
+    }
 
     return file;
 }
