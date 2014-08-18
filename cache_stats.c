@@ -58,10 +58,10 @@ void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
     time(&now);
     
     int time_diff = difftime(stats->started_at, now);
-    
-    if (time_diff > 10) {
+
+    if (time_diff > 1000) {
         stats->started_at = now;
-        stats->reqs_psec = stats->reqs_psec / (time_diff /10.0);
+        stats->reqs_psec = stats->reqs_psec / (time_diff /1000.0);
         stats->finished_reqs = 0;
     }
 }
@@ -70,9 +70,12 @@ void cache_stats_update () {
     
     int reqs_psec = 0, i = 0;
     for (i = 0; i < iter; i++) {
+
         cache_stats_update_finreqs(&thread_stats[i]);
         reqs_psec = reqs_psec + thread_stats[i].reqs_psec;
     }
+
+//    PLUGIN_TRACE("stats->finished_reqs = %d", reqs_psec);
 
     global_stats.reqs_psec = reqs_psec;
 }
@@ -83,5 +86,4 @@ void cache_stats_new () {
     stats = pthread_getspecific(stats_thread);
 
     stats->finished_reqs += 1;
-    PLUGIN_TRACE("stats->finished_reqs = %d");
 }

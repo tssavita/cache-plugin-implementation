@@ -41,7 +41,7 @@
 #include "include/cache_operation.h"
 #include "include/cache_stats.h"
 #include "include/stats_timer.h"
-#include "include/constants.h"
+//#include "include/constants.h"
 #include "include/utils.h"
 
 MONKEY_PLUGIN("cache",             /* shortname */
@@ -152,7 +152,6 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     struct file_t *file;
 
-            PLUGIN_TRACE("path in stats - %s", path);
     cache_stats_new();
 
     int uri_len = sr->uri_processed.len > MAX_URI_LEN ?
@@ -165,7 +164,6 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     memcpy (path, sr->real_path.data, path_len);
     uri[uri_len] = '\0';
     path[path_len] = '\0';
-            PLUGIN_TRACE("path in stats - %s", path);
 
     if (uri_len > 6 && memcmp(uri, UI_URL, UI_URL_LEN) == 0) {
 
