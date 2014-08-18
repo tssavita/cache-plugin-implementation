@@ -40,6 +40,7 @@
 #include "include/cJSON.h"
 #include "include/cache_operation.h"
 #include "include/cache_stats.h"
+#include "include/stats_timer.h"
 #include "include/constants.h"
 #include "include/utils.h"
 
@@ -59,7 +60,7 @@ int _mkp_init(struct plugin_api **api, char *confdir)
     PLUGIN_TRACE("Initializing");
     mk_mimetype_read_config();
 
-    cache_process_init();
+//    cache_process_init();
 
     return 0;
 }
@@ -79,6 +80,7 @@ int _mkp_core_prctx (struct server_config *conf) {
 
     cache_process_init ();
     cache_stats_process_init ();
+    stats_timer_process_init();
     
     config = conf;
 
@@ -91,6 +93,16 @@ void _mkp_core_thctx () {
 
     cache_thread_init ();
     cache_stats_thread_init ();
+    stats_timer_thread_init();
+}
+
+int _mkp_event_read(int fd) {
+    if (fd == stats_timer_get_fd()) {
+        stats_timer_read();
+        return  MK_PLUGIN_RET_EVENT_OWNED;
+    }
+
+    return MK_PLUGIN_RET_EVENT_NEXT;
 }
 
 int cJSON_stats (struct client_session *cs, struct session_request *sr) {
@@ -106,6 +118,8 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
 
     root = cJSON_CreateObject();
     reqs = cJSON_CreateObject();
+
+    PLUGIN_TRACE("fin req = %d", global_stats.reqs_psec);
     
     cJSON_AddItemToObject(root, "requests", reqs);
     cJSON_AddNumberToObject(reqs, "finished_per_sec", global_stats.reqs_psec);
@@ -138,6 +152,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     struct file_t *file;
 
+            PLUGIN_TRACE("path in stats - %s", path);
     cache_stats_new();
 
     int uri_len = sr->uri_processed.len > MAX_URI_LEN ?
