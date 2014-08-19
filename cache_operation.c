@@ -57,7 +57,7 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
     struct file_info finfo;
     
     /* Checking to see if the file is already present. */
-    file = table_lookup (hash_table, uri);
+    file = cache_lookup_file(uri);
 
     /* If the file was not present already in cache 
     condition becomes successful. */
@@ -145,8 +145,11 @@ struct file_t *cache_lookup_file (const char *uri) {
     struct file_t *file = table_lookup (hash_table, uri);
     if (file == NULL) 
         return NULL;
-    else
-        file_access_count (file);
+    else {
+        PLUGIN_TRACE("File access count = %d", file->count);
+        file->count += 1;
+        count_increment(heap, file->name);
+    }
 
     time_t now;
     time(&now);

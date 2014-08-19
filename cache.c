@@ -99,6 +99,7 @@ void _mkp_core_thctx () {
 int _mkp_event_read(int fd) {
     if (fd == stats_timer_get_fd()) {
         stats_timer_read();
+        PLUGIN_TRACE("Read event started.");
         return  MK_PLUGIN_RET_EVENT_OWNED;
     }
 
@@ -127,9 +128,7 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     files = cJSON_CreateObject();
 
     cJSON_AddItemToObject(root, "files", files);
-PLUGIN_TRACE("path in stats");
     table_file_info(hash_table, files);
-    PLUGIN_TRACE("path in stats ");
 
     msg_to_send = cJSON_Print(root);
     sr->headers.content_length = strlen(msg_to_send);
@@ -157,6 +156,7 @@ void *cJSON_stats_file(const char *key, void *val, void *result) {
     cJSON_AddItemToArray(files, file);
     cJSON_AddStringToObject(file, "name", file_content->name);
     cJSON_AddNumberToObject(file, "size", file_content->size);
+    cJSON_AddNumberToObject(file, "access_count", file_content->count);
     return files;
 }
 
