@@ -27,7 +27,7 @@
 
 struct cache_global_stats {
     int reqs_psec;
-};
+} global_stats;
 
 struct cache_thread_stats {
     int index;
@@ -37,7 +37,7 @@ struct cache_thread_stats {
 };
 
 struct cache_thread_stats *thread_stats;
-struct cache_global_stats global_stats;
+//struct cache_global_stats global_stats;
 
 void cache_stats_process_init ();
 

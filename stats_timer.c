@@ -29,8 +29,8 @@ void stats_timer_process_init() {
     struct timespec timer;
     struct itimerspec timerout;
 
-    timer.tv_sec = 0;
-    timer.tv_nsec = 1;
+    timer.tv_sec = 10;
+    timer.tv_nsec = 0;
 
     timerout.it_interval = timer;
     timerout.it_value = timer;
@@ -52,6 +52,8 @@ int stats_timer_get_fd() {
 void stats_timer_read() { 
     char timer[8];
     int cnt = 0;
-    if ((cnt = read(stats_timer_fd, timer, 8)) == 8) 
+    if ((cnt = read(stats_timer_fd, timer, 8)) == 8) {
+        PLUGIN_TRACE("Calling cache_stats_update()");
         cache_stats_update();
+    }
 }

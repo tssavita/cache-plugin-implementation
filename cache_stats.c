@@ -22,9 +22,10 @@
 #include <time.h>
 
 static int workers = 0;
-int iter = 0;
 
 pthread_key_t stats_thread;
+
+int iter = 0;
 
 void cache_stats_process_init () {
     pthread_key_create(&stats_thread, NULL);
@@ -45,11 +46,10 @@ void cache_stats_thread_init () {
 
     time_t stats_now;
     time(&stats_now);
-
     thread->started_at = stats_now;
-    workers++;
-
+    
     pthread_setspecific (stats_thread, (void *) thread);
+    workers++;
 }
 
 void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
@@ -57,11 +57,14 @@ void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
     time_t now;
     time(&now);
     
-    int time_diff = difftime(stats->started_at, now);
+    int time_diff = difftime(now,stats->started_at);
+    PLUGIN_TRACE("time_diff = %d", time_diff);
 
-    if (time_diff > 1000) {
+    if (time_diff > 60) {
+
+        PLUGIN_TRACE("stats->finished_reqs = %d, stats->reqs_psec = %d", stats->finished_reqs, stats->reqs_psec);
         stats->started_at = now;
-        stats->reqs_psec = stats->reqs_psec / (time_diff /1000.0);
+        stats->reqs_psec = stats->finished_reqs; // / (time_diff /10.0);
         stats->finished_reqs = 0;
     }
 }
@@ -70,12 +73,9 @@ void cache_stats_update () {
     
     int reqs_psec = 0, i = 0;
     for (i = 0; i < iter; i++) {
-
         cache_stats_update_finreqs(&thread_stats[i]);
         reqs_psec += thread_stats[i].reqs_psec;
     }
-
-//    PLUGIN_TRACE("stats->finished_reqs = %d", reqs_psec);
 
     global_stats.reqs_psec = reqs_psec;
 }

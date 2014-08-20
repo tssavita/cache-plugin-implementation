@@ -98,14 +98,14 @@ void _mkp_core_thctx () {
     stats_timer_thread_init();
 }
 
-/*int _mkp_event_read(int fd) {
+int _mkp_event_read(int fd) {
     if (fd == stats_timer_get_fd()) {
         stats_timer_read();
         return  MK_PLUGIN_RET_EVENT_OWNED;
     }
 
     return MK_PLUGIN_RET_EVENT_NEXT;
-}*/
+}
 
 int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     mk_api->header_set_http_status (sr, MK_HTTP_OK);
