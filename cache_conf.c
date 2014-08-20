@@ -22,6 +22,7 @@
 
 #include <monkey/mk_api.h>
 #include <monkey/mk_config.h>
+#include <monkey/mk_mimetype.h>
 
 void cache_config_file_read(char *path) {
     unsigned long len;
@@ -32,6 +33,7 @@ void cache_config_file_read(char *path) {
     mk_api->str_build(&default_file, &len, "%scache.conf", path);
     conf = mk_api->config_create(default_file);
     section = mk_api->config_section_get(conf, "CACHE_CONF");
+
 
     if (!section) {
         mk_err("Could not file section CACHE_CONF in the configuration file.");
@@ -52,8 +54,32 @@ void cache_config_file_read(char *path) {
     if (config->timeout < 1) 
         mk_err("Timeout should be set");
 
+    cache_conf->mime_names_list = mk_api->config_section_getval(section, "MimeTypesList", MK_CONFIG_VAL_LIST);
+        PLUGIN_TRACE("entry->val");
 
-    cache_conf->mime_types_list = mk_api->config_section_getval(section, "MimeTypesList", MK_CONFIG_VAL_LIST);
+    fill_cachemime_list();
 
     mk_api->mem_free(default_file);
+}
+
+void fill_cachemime_list() {
+        PLUGIN_TRACE("entry->val");
+    struct mk_list *head;
+    struct mk_string_line *entry;
+    struct mimetype *mime;
+    cache_conf->mime_types_list = mk_api->mem_alloc(sizeof(struct mk_list));
+    mk_list_init(cache_conf->mime_types_list);
+    
+    mk_list_foreach(head, cache_conf->mime_names_list) {
+        entry = mk_list_entry(head, struct mk_string_line, _head);
+        mime = mk_mimetype_lookup(entry->val);
+        if (&mime->_head) 
+            mk_list_add(&mime->_head, cache_conf->mime_types_list);
+    }
+
+    mk_list_foreach(head, cache_conf->mime_types_list) {
+        entry = mk_list_entry(head, struct mk_string_line, _head);
+        PLUGIN_TRACE("entry->val = %s\n",entry->val);
+    }
+
 }
