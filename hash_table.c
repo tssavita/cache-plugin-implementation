@@ -32,6 +32,7 @@
 #include <monkey/mk_plugin.h>
 #include <monkey/mk_memory.h>
 #include <monkey/mk_api.h>
+#include <monkey/mk_utils.h>
 
 /* Create hash table structure. */
 struct table_t *table_create () {
@@ -51,9 +52,10 @@ struct table_t *table_create () {
 /* Insert key into the table.  */
 int table_insert (struct table_t *table, const char *key, void *data) {
 
-    int index = hash_func_asciisum_modulo(key, table->table_size);
+    unsigned int hash = mk_utils_gen_hash(key, strlen(key));
+    int index = (hash % table->table_size);
     PLUGIN_TRACE ("Finding out hash of the file name requested = %d\n", index);
-
+    PLUGIN_TRACE("Key - %s, Index - %d", key, index);
     struct node_t *node = mk_api->mem_alloc_z(sizeof(struct node_t)); 
 
     memcpy(node->key, key, MAX_PATH_LEN);
@@ -80,7 +82,9 @@ void *table_file_info(struct table_t *table, void *result) {
 /* Looking up a value in the hash table. */
 void *table_lookup (struct table_t *table, const char *key) {
 
-    int index = hash_func_asciisum_modulo(key, table->table_size);
+    unsigned int hash = mk_utils_gen_hash(key, strlen(key));
+    int index = (hash % table->table_size); 
+    PLUGIN_TRACE("Key - %s, Index - %d", key, index);
     struct node_t *temp = mk_api->mem_alloc_z(sizeof(struct node_t));
     temp = table->table_list[index];
 
@@ -101,7 +105,10 @@ void *table_lookup (struct table_t *table, const char *key) {
 /* Deleting an element from the table. */
 void *table_delete (struct table_t *table, const char *key) {
 
-    int index = hash_func_asciisum_modulo(key, table->table_size);
+    unsigned int hash = mk_utils_gen_hash(key, strlen(key));
+    int index = (hash % table->table_size);
+
+    PLUGIN_TRACE("Key - %s, Index - %d", key, index);
     struct node_t *temp1 = table->table_list[index], *temp2;
     void *data = NULL;
 
