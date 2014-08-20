@@ -41,6 +41,8 @@
 #include "include/cache_operation.h"
 #include "include/cache_stats.h"
 #include "include/stats_timer.h"
+#include "include/hash_func.h"
+#include "include/hash_table.h"
 //#include "include/constants.h"
 #include "include/utils.h"
 
@@ -99,7 +101,6 @@ void _mkp_core_thctx () {
 int _mkp_event_read(int fd) {
     if (fd == stats_timer_get_fd()) {
         stats_timer_read();
-        PLUGIN_TRACE("Read event started.");
         return  MK_PLUGIN_RET_EVENT_OWNED;
     }
 
@@ -129,6 +130,7 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
 
     cJSON_AddItemToObject(root, "files", files);
     table_file_info(hash_table, files);
+    PLUGIN_TRACE("path in stats ");
 
     msg_to_send = cJSON_Print(root);
     sr->headers.content_length = strlen(msg_to_send);
@@ -222,12 +224,12 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
         }
     }
     PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
-            
+
     if (!file_found) 
         file = cache_add_file (path, uri);
     
     if (!file) {
-    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
+        PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
         return MK_PLUGIN_RET_NOT_ME;
     }
 
@@ -277,7 +279,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
     sr->headers.content_type = mime->type;
 
-    PLUGIN_TRACE ("file = %s", file->content.data);
+//    PLUGIN_TRACE ("file = %s", file->content.data);
     
     sr->headers.sent = MK_TRUE;
     mk_api->header_send(cs->socket, cs, sr);
@@ -285,7 +287,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     memset (uri, '\0', sizeof(uri));
     memset (path, '\0', sizeof(path));
-    PLUGIN_TRACE ("file = %s", file->content.data);
+//    PLUGIN_TRACE ("file = %s", file->content.data);
 
     return MK_PLUGIN_RET_END;
 }

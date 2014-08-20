@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "hash_table.h"
+#include "include/hash_table.h"
 #include <monkey/mk_memory.h>
 
 #define MAX_LENGTH_NAME 1024

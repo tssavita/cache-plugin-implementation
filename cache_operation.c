@@ -34,6 +34,7 @@
 #include "include/cache_conf.h"
 #include "include/cache_operation.h"
 #include "include/hash_table.h"
+#include "include/hash_func.h"
 #include "include/min_heap.h"
 #include "include/utils.h"
 #include <monkey/mk_plugin.h>
@@ -117,8 +118,8 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         file->content.len = map_length;
         file->count = 1;
         file->size = finfo.size;
-
-        int htable_insert = table_insert (hash_table, uri, file);
+        
+        int htable_insert = table_insert(hash_table, uri, file);
         int mheap_insert = heap_insert (heap, uri);
 
         if ( htable_insert == 0 || mheap_insert == false ) {

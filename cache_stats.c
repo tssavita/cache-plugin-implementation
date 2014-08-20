@@ -72,7 +72,7 @@ void cache_stats_update () {
     for (i = 0; i < iter; i++) {
 
         cache_stats_update_finreqs(&thread_stats[i]);
-        reqs_psec = reqs_psec + thread_stats[i].reqs_psec;
+        reqs_psec += thread_stats[i].reqs_psec;
     }
 
 //    PLUGIN_TRACE("stats->finished_reqs = %d", reqs_psec);

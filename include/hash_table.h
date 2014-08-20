@@ -23,11 +23,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "include/utils.h"
+
 #define TABLE_SIZE 50
 
 /* Structure for the key to be inserted in the hash table. */
 struct node_t {
-    const char* key;
+    char key[MAX_PATH_LEN];
     void *data;
     struct node_t *next;
 };

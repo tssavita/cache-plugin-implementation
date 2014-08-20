@@ -52,7 +52,6 @@ int stats_timer_get_fd() {
 void stats_timer_read() { 
     char timer[8];
     int cnt = 0;
-    if ((cnt = read(stats_timer_fd, timer, 8)) == 8) {
+    if ((cnt = read(stats_timer_fd, timer, 8)) == 8) 
         cache_stats_update();
-    }
 }

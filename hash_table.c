@@ -53,12 +53,12 @@ struct table_t *table_create () {
 int table_insert (struct table_t *table, const char *key, void *data) {
 
     int index = hash_func_asciisum_modulo(key, table->table_size);
+    PLUGIN_TRACE ("Finding out hash of the file name requested = %d\n", index);
 
     struct node_t *node = malloc(sizeof(struct node_t)); 
-    if (!node) 
-        return false;
+    memset(node, 0, sizeof(struct node_t));
 
-    node->key = key;
+    memcpy(node->key, key, MAX_PATH_LEN);
     node->data = data;
 
     node->next = table->table_list[index];
@@ -84,14 +84,11 @@ void *table_lookup (struct table_t *table, const char *key) {
 
     int index = hash_func_asciisum_modulo(key, table->table_size);
     struct node_t *temp = malloc(sizeof(struct node_t));
+    memset(temp, 0, sizeof(struct node_t));
     temp = table->table_list[index];
 
     if (!temp) 
         return NULL;
-
-    PLUGIN_TRACE ("Lookup inside the hash table.\n");
-
-    PLUGIN_TRACE ("Finding out hash of the file name requested = %d\n", index);
 
     for (temp = table->table_list[index]; temp; temp = temp->next) {
         if (temp->key == key || (strcmp(temp->key, key) ==0)) {
