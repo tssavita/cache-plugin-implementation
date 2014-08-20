@@ -168,9 +168,6 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     struct file_t *file;
 
-
-
-
     int uri_len = sr->uri_processed.len > MAX_URI_LEN ?
         MAX_URI_LEN : sr->uri_processed.len;
 
@@ -186,7 +183,6 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     struct mk_list *head;
     struct mk_string_line *entry;
     char *ext = file_ext(path);
-    struct mimetype *mime = mk_api->mem_alloc_z(sizeof(struct mimetype));
 
     if (!ext)
         ext = "mime not found";
@@ -260,7 +256,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     sr->headers.real_length = file->content.len;
 //    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
 
-    mime = mk_mimetype_lookup(ext);
+    struct mimetype *mime = mk_mimetype_lookup(ext);
     sr->headers.content_type = mime->type;
 
 //    PLUGIN_TRACE ("file = %s", file->content.data);

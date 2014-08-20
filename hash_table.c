@@ -68,7 +68,7 @@ int table_insert (struct table_t *table, const char *key, void *data) {
 }
 
 void *table_file_info(struct table_t *table, void *result) {
-    struct node_t *temp = mk_api->mem_alloc(sizeof(struct node_t));
+    struct node_t *temp;
 
     int i = 0;
     for (i = 0; i < table->table_size; i++) {
@@ -85,8 +85,7 @@ void *table_lookup (struct table_t *table, const char *key) {
     unsigned int hash = mk_utils_gen_hash(key, strlen(key));
     int index = (hash % table->table_size); 
     PLUGIN_TRACE("Key - %s, Index - %d", key, index);
-    struct node_t *temp = mk_api->mem_alloc_z(sizeof(struct node_t));
-    temp = table->table_list[index];
+    struct node_t *temp = table->table_list[index];
 
     if (!temp) 
         return NULL;

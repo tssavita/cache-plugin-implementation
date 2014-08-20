@@ -128,9 +128,9 @@ void heap_destroy (struct heap_t *heap) {
     if (!heap)
         return;
 
-    struct node_count *node = mk_api->mem_alloc(sizeof(struct node_count));
+    struct node_count *node;
     for (i = 0; i < heap->heapsize; i++) {
-        *node = heap->heap_array[i];
+        node = &heap->heap_array[i];
         free(node);
     }
     free(heap);
