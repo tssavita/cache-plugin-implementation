@@ -131,9 +131,7 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     sr->headers.content_length = strlen(msg_to_send);
     sr->headers.real_length = strlen(msg_to_send);
     
-    struct mimetype *mime = malloc(sizeof(struct mimetype));
-    memset(mime, 0, sizeof(struct mimetype));
-    mime = mk_mimetype_lookup(mime_string);
+    struct mimetype *mime = mk_mimetype_lookup(mime_string);
 
     sr->headers.content_type = mime->type;
     mk_api->header_send(cs->socket, cs, sr);
@@ -170,7 +168,8 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
     struct file_t *file;
 
-    cache_stats_new();
+
+
 
     int uri_len = sr->uri_processed.len > MAX_URI_LEN ?
         MAX_URI_LEN : sr->uri_processed.len;
@@ -206,7 +205,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
         if (url.len == 11 && memcmp(url.data, "/index.html", 11) == 0) {
             cache_flag = 1;
             ext = "html";
-            memset (path, '\0', sizeof(path));
+//            memset (path, '\0', sizeof(path));
 
             int pluglen = strlen(PLUGDIR);
             memcpy(path, PLUGDIR, pluglen);
@@ -223,8 +222,9 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
             path[path_len] = '\0';
 
             PLUGIN_TRACE("path in stats - %s", path);
-            if (cache_flag)
+            if (cache_flag) {
                 file = cache_add_file(path, url.data);
+            }
             else
                 PLUGIN_TRACE("Sorry ! Monkey plugin does not cache this mimetype.");
                 
@@ -239,23 +239,26 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     mk_list_foreach(head, cache_conf->mime_types_list) {
         entry = mk_list_entry(head, struct mk_string_line, _head);
 
-        if (strcmp(ext, entry->val) == 0) 
+        if (strcmp(ext, entry->val) == 0) {
             cache_flag = 1;
-        
+            break;
+        }
     }    
 
-    if ((!file_found) && cache_flag) {
+    if ((!file_found) && cache_flag) 
         file = cache_add_file (path, uri);
-        return MK_PLUGIN_RET_NOT_ME;
-    }
+    
+    PLUGIN_TRACE("path in stats - %s", path);
     
     if (!file) 
         return MK_PLUGIN_RET_NOT_ME;
+    else 
+        cache_stats_new();
 
     mk_api->header_set_http_status (sr, MK_HTTP_OK);
     sr->headers.content_length = file->content.len;
     sr->headers.real_length = file->content.len;
-    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
+//    PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
 
     mime = mk_mimetype_lookup(ext);
     sr->headers.content_type = mime->type;
@@ -266,8 +269,6 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     mk_api->header_send(cs->socket, cs, sr);
     mk_api->socket_send(cs->socket, file->content.data, file->content.len);
 
-    memset (uri, '\0', sizeof(uri));
-    memset (path, '\0', sizeof(path));
 //    PLUGIN_TRACE ("file = %s", file->content.data);
 
     return MK_PLUGIN_RET_END;

@@ -20,28 +20,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <monkey/mk_api.h>
 
 #include "include/min_heap.h"
 #include "include/hash_table.h"
 #include "include/cache_operation.h"
 #include "include/utils.h"
 #include <monkey/mk_plugin.h>
-//#include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 
 /* Function to create the structure (array) for min heap. */
 
 struct heap_t *heap_create() {
 
-    struct heap_t *heap = malloc(sizeof(struct heap_t));
+    struct heap_t *heap = mk_api->mem_alloc(sizeof(struct heap_t));
     if (!heap)
         return NULL;
 
     heap->heapsize = 0;
 
     int space = TABLE_SIZE * (sizeof(struct node_count));
-    heap->heap_array  = malloc(space);
-    
-    memset(heap->heap_array, 0, space);
+    heap->heap_array  = mk_api->mem_alloc_z(space);
     
     return heap;
 }
@@ -56,7 +54,7 @@ int heap_insert(struct heap_t *heap, const char *name) {
         return false;
 
     /* Incremented number of elements in min heap. */
-    struct node_count *node = malloc(sizeof(struct node_count));
+    struct node_count *node = mk_api->mem_alloc(sizeof(struct node_count));
     if (!node)
         return false;
 
@@ -130,7 +128,7 @@ void heap_destroy (struct heap_t *heap) {
     if (!heap)
         return;
 
-    struct node_count *node = malloc(sizeof(struct node_count));
+    struct node_count *node = mk_api->mem_alloc(sizeof(struct node_count));
     for (i = 0; i < heap->heapsize; i++) {
         *node = heap->heap_array[i];
         free(node);

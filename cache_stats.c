@@ -30,7 +30,7 @@ int iter = 0;
 void cache_stats_process_init () {
     pthread_key_create(&stats_thread, NULL);
     iter = mk_api->config->workers;
-    thread_stats = malloc (iter * sizeof(struct cache_thread_stats));
+    thread_stats = mk_api->mem_alloc(iter * sizeof(struct cache_thread_stats));
 }
 
 void cache_stats_thread_init () {
@@ -65,7 +65,7 @@ void cache_stats_update_finreqs (struct cache_thread_stats *stats) {
         PLUGIN_TRACE("stats->finished_reqs = %d, stats->reqs_psec = %d", stats->finished_reqs, stats->reqs_psec);
         stats->started_at = now;
         stats->reqs_psec = stats->finished_reqs; // / (time_diff /10.0);
-        stats->finished_reqs = 0;
+//        stats->finished_reqs = 0;
     }
 }
 
@@ -78,12 +78,4 @@ void cache_stats_update () {
     }
 
     global_stats.reqs_psec = reqs_psec;
-}
-
-void cache_stats_new () {
-    struct cache_thread_stats *stats = malloc(sizeof(struct cache_thread_stats));
-    memset(stats, 0, sizeof(struct cache_thread_stats));
-    stats = pthread_getspecific(stats_thread);
-
-    stats->finished_reqs += 1;
 }

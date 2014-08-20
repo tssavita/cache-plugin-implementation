@@ -27,24 +27,23 @@
 #include "include/cJSON.h"
 #include "include/cache_operation.h"
 #include "include/cache_stats.h"
+#include "include/cache_conf.h"
 
 #include <monkey/mk_plugin.h>
 #include <monkey/mk_memory.h>
 #include <monkey/mk_api.h>
-//#include "../../deps/jemalloc/include/jemalloc/jemalloc.h"
 
 /* Create hash table structure. */
 struct table_t *table_create () {
 
-    struct table_t *table = malloc(sizeof(struct table_t));
+    struct table_t *table = mk_api->mem_alloc(sizeof(struct table_t));
 
     if (!table)
         return NULL;
 
     table->table_size = TABLE_SIZE;
-    int space = TABLE_SIZE * (sizeof(struct node_t));
-    table->table_list = malloc(space);
-    memset(table->table_list, 0, space);
+    size_t space = TABLE_SIZE * (sizeof(struct node_t));
+    table->table_list = mk_api->mem_alloc_z(space);
     
     return table;
 }
@@ -55,8 +54,7 @@ int table_insert (struct table_t *table, const char *key, void *data) {
     int index = hash_func_asciisum_modulo(key, table->table_size);
     PLUGIN_TRACE ("Finding out hash of the file name requested = %d\n", index);
 
-    struct node_t *node = malloc(sizeof(struct node_t)); 
-    memset(node, 0, sizeof(struct node_t));
+    struct node_t *node = mk_api->mem_alloc_z(sizeof(struct node_t)); 
 
     memcpy(node->key, key, MAX_PATH_LEN);
     node->data = data;
@@ -68,7 +66,7 @@ int table_insert (struct table_t *table, const char *key, void *data) {
 }
 
 void *table_file_info(struct table_t *table, void *result) {
-    struct node_t *temp = malloc(sizeof(struct node_t));
+    struct node_t *temp = mk_api->mem_alloc(sizeof(struct node_t));
 
     int i = 0;
     for (i = 0; i < table->table_size; i++) {
@@ -83,15 +81,14 @@ void *table_file_info(struct table_t *table, void *result) {
 void *table_lookup (struct table_t *table, const char *key) {
 
     int index = hash_func_asciisum_modulo(key, table->table_size);
-    struct node_t *temp = malloc(sizeof(struct node_t));
-    memset(temp, 0, sizeof(struct node_t));
+    struct node_t *temp = mk_api->mem_alloc_z(sizeof(struct node_t));
     temp = table->table_list[index];
 
     if (!temp) 
         return NULL;
 
     for (temp = table->table_list[index]; temp; temp = temp->next) {
-        if (temp->key == key || (strcmp(temp->key, key) ==0)) {
+        if (temp->key == key || (memcmp(temp->key, key, strlen(key)) ==0)) {
             PLUGIN_TRACE ("Found file\n");
             return temp->data;
         }
@@ -103,7 +100,7 @@ void *table_lookup (struct table_t *table, const char *key) {
 
 /* Deleting an element from the table. */
 void *table_delete (struct table_t *table, const char *key) {
-    
+
     int index = hash_func_asciisum_modulo(key, table->table_size);
     struct node_t *temp1 = table->table_list[index], *temp2;
     void *data = NULL;
@@ -111,14 +108,14 @@ void *table_delete (struct table_t *table, const char *key) {
     if (!temp1) 
         return NULL;
 
-    if (temp1->key == key || (strcmp(temp1->key, key)==0)) {
+    if (temp1->key == key || (memcmp(temp1->key, key, strlen(key))==0)) {
         table->table_list[index] = temp1->next;
         data = temp1->next;
         free(temp1);
     }
     else {
         for (temp1 = table->table_list[index], temp2 = temp1; temp1 != NULL; temp2 = temp1, temp1 = temp1->next) {
-            if (temp1->key == key || (strcmp (temp1->key, key)==0)) {
+            if (temp1->key == key || (memcmp (temp1->key, key, strlen(key))==0)) {
                 temp2->next = temp1->next;
                 data = temp1->data;
                 free(temp1);
