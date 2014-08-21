@@ -198,21 +198,7 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
 
         if (url.len == 11 && memcmp(url.data, "/index.html", 11) == 0) {
             ext = "html";
-//            memset (path, '\0', sizeof(path));
-//            long unsigned int pluglen = strlen(PLUGDIR) + strlen(UI_URL) + strlen(UI_DIR);
-//            mk_api->str_build((char **) path, &pluglen, "%s%s%s", PLUGDIR, UI_URL, UI_DIR);
-/*            snprintf(path, pluglen, "%s%s%s", PLUGDIR, UI_URL, UI_DIR);*/
 
-/*            int pluglen = strlen(PLUGDIR);
-            memcpy(path, PLUGDIR, pluglen);
-
-            int level_1 = strlen(path);
-            int pluglen2 = pluglen + strlen(UI_URL);
-            memcpy(path + level_1, UI_URL, pluglen2);
-
-            int level_2 = strlen(path);
-            int pluglen3 = pluglen2 + strlen(UI_DIR);
-            memcpy(path + level_2, UI_DIR, pluglen3);*/
             path_len = strlen(PLUGIN_UI);
             memcpy(path, PLUGIN_UI, strlen(PLUGIN_UI));
             path[path_len] = '\0';
@@ -228,24 +214,9 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     }
     PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
 
-//    struct mimetype *temp, *final_type = NULL;
-    
-    if (!file_found ) {
+    if (!file_found ) 
         file = cache_add_file (path, uri, ext);
 
-/*      if (!file->type) {
-            mk_list_foreach(head, cache_conf->mime_types_list) {
-                temp = mk_list_entry(head, struct mimetype, _head);
-                if (memcmp(ext, temp->name, strlen(ext)) == 0) {
-                    
-                    cache_flag = 1;
-                    final_type = temp;
-                    break;
-                }
-            }    
-        }*/ 
-    }
-    
     if (!file) 
         return MK_PLUGIN_RET_NOT_ME;
     else 
@@ -255,13 +226,13 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
     sr->headers.content_length = file->content.len;
     sr->headers.real_length = file->content.len;
     sr->headers.content_type = file->type;
-
-//    struct mimetype *mime = mk_mimetype_lookup(ext);
-
-
     sr->headers.sent = MK_TRUE;
-    mk_api->header_send(cs->socket, cs, sr);
     mk_api->socket_send(cs->socket, file->content.data, file->content.len);
 
+    if ((config->max_keep_alive_request - cs->counter_connections) <= 0) 
+        mk_api->header_send(cs->socket, cs, sr);
+
+    PLUGIN_TRACE("(config->max_keep_alive_request = %d", config->max_keep_alive_request);
+    PLUGIN_TRACE("cs->counter_connections = %d", cs->counter_connections);
     return MK_PLUGIN_RET_END;
 }
