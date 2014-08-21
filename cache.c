@@ -171,13 +171,10 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
         MAX_PATH_LEN : sr->real_path.len;
 
     memcpy(uri, sr->uri_processed.data, uri_len);
-    memcpy (path, sr->real_path.data, path_len);
     uri[uri_len] = '\0';
-    path[path_len] = '\0';
-    
+
     int cache_flag = 0;
     struct mk_list *head;
-    struct mk_string_line *entry;
     char *ext = file_ext(path);
 
     if (!ext)
@@ -229,22 +226,18 @@ int _mkp_stage_30(struct plugin *plugin, struct client_session *cs,
             }
         }
     }
+    memcpy (path, sr->real_path.data, path_len);
+    path[path_len] = '\0';
     PLUGIN_TRACE ("path = %s, %d", path, strlen(path));
 
     struct mimetype *temp, *final_type = NULL;
     
-    mk_list_foreach(head, cache_conf->mime_names_list) {
-        entry = mk_list_entry(head, struct mk_string_line, _head);
+    mk_list_foreach(head, cache_conf->mime_types_list) {
+        temp = mk_list_entry(head, struct mimetype, _head);
 
-        if (strcmp(ext, entry->val) == 0) {
+        if (strcmp(ext, temp->name) == 0) {
             cache_flag = 1;
-            mk_list_foreach(head, cache_conf->mime_types_list) {
-                temp = mk_list_entry(head, struct mimetype, _head);
-                if (strcmp(ext, temp->name) == 0) {
-                    final_type = temp;
-                    break;
-                }
-            }
+            final_type = temp;
             break;
         }
     }    

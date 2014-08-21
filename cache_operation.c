@@ -143,7 +143,7 @@ void file_access_count (struct file_t *file) {
    of the 'uri'*/
 struct file_t *cache_lookup_file (const char *uri) {
 
-    struct file_t *file = table_lookup (hash_table, uri);
+    struct file_t *file = table_lookup(hash_table, uri);
     if (file == NULL) 
         return NULL;
     else {
