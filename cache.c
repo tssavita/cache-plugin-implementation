@@ -56,9 +56,8 @@ int _mkp_init(struct plugin_api **api, char *confdir)
 {
     (void) confdir;
     mk_api = *api;
-    mk_mimetype_read_config();
-
     cache_config_file_read(confdir);
+    mk_mimetype_read_config();
 
     PLUGIN_TRACE("Initializing");
 
@@ -110,7 +109,7 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
 
     cJSON *root, *reqs, *files;
     char *msg_to_send;
-    char *mime_string = "application/json";
+    const mk_ptr_t json_type = mk_ptr_init("application/json\r\n");
 
     root = cJSON_CreateObject();
     reqs = cJSON_CreateObject();
@@ -129,8 +128,8 @@ int cJSON_stats (struct client_session *cs, struct session_request *sr) {
     sr->headers.content_length = strlen(msg_to_send);
     sr->headers.real_length = strlen(msg_to_send);
 
-    sr->headers.content_type.data = mime_string;
-    sr->headers.content_type.len = strlen(mime_string);
+    sr->headers.content_type = json_type;
+//    sr->headers.content_type.len = strlen(mime_string);
     mk_api->header_send(cs->socket, cs, sr);
     mk_api->socket_send(cs->socket, msg_to_send, strlen(msg_to_send));
 
