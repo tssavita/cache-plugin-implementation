@@ -40,6 +40,7 @@ struct file_t {
     size_t size;
     int count;
     time_t mapped_at;
+    mk_ptr_t type;
 };
 
 void cache_process_init();
@@ -48,7 +49,7 @@ void cache_thread_init ();
 
 void file_access_count (struct file_t *file);
 
-struct file_t *cache_add_file (const char *uri, const char *content);
+struct file_t *cache_add_file (const char *uri, const char *content, char *ext);
 
 struct file_t *cache_lookup_file (const char *uri);
 

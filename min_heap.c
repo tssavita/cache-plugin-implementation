@@ -90,7 +90,7 @@ void count_increment (struct heap_t *heap, char const *name) {
     int i = 1;
 
     for (i = 1; i <= heap->heapsize; i++) {
-        if ((strcmp(heap->heap_array[i].name, name)) == 0)
+        if ((memcmp(heap->heap_array[i].name, name, strlen(name))) == 0)
             heap->heap_array[i].count++;
     }
 }

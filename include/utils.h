@@ -22,6 +22,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <monkey/mk_api.h>
+#include <monkey/mk_config.h>
+#include <monkey/mk_plugin.h>
 
 #define handle_error(msg) \
         do { perror (msg); \
@@ -46,6 +49,9 @@ typedef enum {false, true} bool;
 
 #define UI_DIR "/conf/ui_2/index.html"
 #define UI_DIR_LEN 21
+
+#define PLUGIN_UI1 PLUGDIR UI_URL
+#define PLUGIN_UI PLUGIN_UI1 UI_DIR
 
 #define MIME_CONF "/conf/mime.conf"
 #define MIME_CONF_LEN 5 

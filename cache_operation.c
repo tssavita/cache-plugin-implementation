@@ -35,22 +35,24 @@
 #include "include/cache_operation.h"
 #include "include/hash_table.h"
 #include "include/hash_func.h"
-#include "include/min_heap.h"
+// #include "include/min_heap.h"
 #include "include/utils.h"
+
+#include <monkey/mk_mimetype.h>
 #include <monkey/mk_plugin.h>
 #include <monkey/mk_api.h>
 
 void cache_process_init () {
 
     hash_table = table_create();
-    heap = heap_create ();
+//    heap = heap_create ();
 }
 
 void cache_thread_init () {
 }
 
 /* To add a new file to the cache. */
-struct file_t *cache_add_file (const char *path, const char *uri) {
+struct file_t *cache_add_file (const char *path, const char *uri, char *ext) {
 
     int ret;
     struct file_t *file;
@@ -113,16 +115,36 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
         time(&now);
 
         file->mapped_at = now;
-        strncpy(file->name, uri, MAX_LENGTH_NAME);
+        memcpy(file->name, uri, MAX_LENGTH_NAME);
         file->content.data = map_content;
         file->content.len = map_length;
         file->count = 1;
         file->size = finfo.size;
+
+        /* Find and attaching the mime type of the file to itself. */
+
+        struct mk_list *head;
+        struct mimetype *temp;
+        int cache_flag = 0;
+
+        mk_list_foreach(head, cache_conf->mime_types_list) {
+            temp = mk_list_entry(head, struct mimetype, _head);
+            if (memcmp(ext, temp->name, strlen(ext)) == 0) {
+                cache_flag = 1;
+                file->type = temp->type;
+                break;
+            }
+        }
+        if (cache_flag == 0) {
+            PLUGIN_TRACE("Caching plugin does not cache this mimetype. Sorry ! :-(");
+            return NULL;
+        }
+
         
         int htable_insert = table_insert(hash_table, uri, file);
-        int mheap_insert = heap_insert (heap, uri);
+//        int mheap_insert = heap_insert (heap, uri);
 
-        if ( htable_insert == 0 || mheap_insert == false ) {
+        if ( htable_insert == 0 ) { // || mheap_insert == false ) {
             cache_unmap_file(file);
             return NULL;
         }
@@ -136,7 +158,7 @@ struct file_t *cache_add_file (const char *path, const char *uri) {
 void file_access_count (struct file_t *file) {
 
     file->count += 1;
-    count_increment(heap, file->name);
+//    count_increment(heap, file->name);
 }
 
 /* Looking up the file in the cache, with the help
@@ -149,7 +171,7 @@ struct file_t *cache_lookup_file (const char *uri) {
     else {
         PLUGIN_TRACE("File access count = %d", file->count);
         file->count += 1;
-        count_increment(heap, file->name);
+//        count_increment(heap, file->name);
     }
 
     time_t now;
