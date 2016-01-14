@@ -35,7 +35,6 @@
 #include "include/cache_operation.h"
 #include "include/hash_table.h"
 #include "include/hash_func.h"
-// #include "include/min_heap.h"
 #include "include/utils.h"
 
 #include <monkey/mk_mimetype.h>
@@ -45,7 +44,6 @@
 void cache_process_init () {
 
     hash_table = table_create();
-//    heap = heap_create ();
 }
 
 void cache_thread_init () {
@@ -62,34 +60,16 @@ struct file_t *cache_add_file (const char *path, const char *uri, char *ext) {
     /* Checking to see if the file is already present. */
     file = cache_lookup_file(uri);
 
-    /* If the file was not present already in cache 
-    condition becomes successful. */
+    /* If the file was not present already in cache condition becomes successful. */
     if (file == NULL) {
 
-        /* Function from mk_file.c to check the validity of the 
-           existence of the function. */
+        /* Function from mk_file.c to check the validity of the existence of the function. */
         ret = mk_file_get_info(path, &finfo);
     
-        /* Another way to check the function. It was found that 
-           using 'mk_file_get_info' was better in terms of performance 
-           and hence decided to stick with it. */
-
-/*        if (stat(path, &file_status) == -1) 
-            return NULL; 
-        
-        if (file_status.st_size <= 0)
-            return NULL;
-
-        bool cond = (((file_status.st_mode & S_IFMT) == S_IFREG) || (S_ISREG(file_status.st_mode)));
-        
-        if (!cond) 
-            return NULL;*/
-
         if (ret == -1)
             return NULL;
 
-        /* When control reaches here, the existence of 
-           the file has been validated. */
+        /* When control reaches here, the existence of the file has been validated. */
 
         if (finfo.size >= cache_conf->max_file_size) 
             return NULL;
@@ -122,7 +102,6 @@ struct file_t *cache_add_file (const char *path, const char *uri, char *ext) {
         file->size = finfo.size;
 
         /* Find and attaching the mime type of the file to itself. */
-
         struct mk_list *head;
         struct mimetype *temp;
         int cache_flag = 0;
@@ -142,9 +121,8 @@ struct file_t *cache_add_file (const char *path, const char *uri, char *ext) {
 
         
         int htable_insert = table_insert(hash_table, uri, file);
-//        int mheap_insert = heap_insert (heap, uri);
 
-        if ( htable_insert == 0 ) { // || mheap_insert == false ) {
+        if ( htable_insert == 0 ) { 
             cache_unmap_file(file);
             return NULL;
         }
@@ -158,7 +136,6 @@ struct file_t *cache_add_file (const char *path, const char *uri, char *ext) {
 void file_access_count (struct file_t *file) {
 
     file->count += 1;
-//    count_increment(heap, file->name);
 }
 
 /* Looking up the file in the cache, with the help
@@ -171,7 +148,6 @@ struct file_t *cache_lookup_file (const char *uri) {
     else {
         PLUGIN_TRACE("File access count = %d", file->count);
         file->count += 1;
-//        count_increment(heap, file->name);
     }
 
     time_t now;
